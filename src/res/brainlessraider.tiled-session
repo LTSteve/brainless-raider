@@ -1,0 +1,100 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "maps/tutorial/4.tmx",
+    "expandedProjectPaths": [
+        "maps",
+        "maps/tutorial",
+        ".",
+        "templates"
+    ],
+    "fileStates": {
+        "maps/tutorial/0.tmx": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 3,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 231.33333333333331,
+                "y": 242.33333333333331
+            }
+        },
+        "maps/tutorial/1.tmx": {
+            "expandedObjectLayers": [
+                3
+            ],
+            "scale": 3,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 287,
+                "y": 250.33333333333331
+            }
+        },
+        "maps/tutorial/2.tmx": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 4,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 272.5,
+                "y": 241
+            }
+        },
+        "maps/tutorial/3.tmx": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 4,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 250,
+                "y": 259.25
+            }
+        },
+        "maps/tutorial/4.tmx": {
+            "scale": 4,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 276.5,
+                "y": 256.75
+            }
+        },
+        "sprites.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        }
+    },
+    "last.imagePath": "C:/Users/Steth/Desktop/Projects/BrainlessRaider/res",
+    "last.objectTemplatePath": "C:/Users/Steth/Desktop/Projects/BrainlessRaider/res/templates",
+    "map.height": 30,
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "openFiles": [
+        "sprites.tsx",
+        "maps/tutorial/0.tmx",
+        "maps/tutorial/1.tmx",
+        "maps/tutorial/2.tmx",
+        "maps/tutorial/3.tmx",
+        "maps/tutorial/4.tmx"
+    ],
+    "project": "brainlessraider.tiled-project",
+    "property.type": "object",
+    "recentFiles": [
+        "sprites.tsx",
+        "maps/tutorial/0.tmx",
+        "maps/tutorial/1.tmx",
+        "maps/tutorial/2.tmx",
+        "maps/tutorial/3.tmx",
+        "maps/tutorial/4.tmx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}

@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 bevy = { version = "0.14.0" }
 roxmltree = "0.20.0"
+serde = "1.0.204"
 
 # Enable a small amount of optimization in debug mode.
 [profile.dev]

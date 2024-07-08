@@ -1,62 +1,92 @@
 use bevy::prelude::*;
 use roxmltree::*;
+use serde::{Deserialize, Serialize};
+use bevy::asset::{
+    io::Reader,
+    AssetLoader, AsyncReadExt, LoadContext,
+};
+use std::io::ErrorKind;
+use std::io::Error;
 
 fn main() {
     App::new()
-    .add_systems(Update, hello_world)
-    .run();
+        .add_plugins((
+            DefaultPlugins.set(AssetPlugin {
+                mode: AssetMode::Unprocessed,
+                file_path: "src".to_string(),
+                ..default()
+            }),
+        ))
+        .init_asset::<Map>()
+        .register_asset_loader(MapLoader)
+        .add_systems(Startup, setup)
+        .add_systems(Update, hello_assets)
+        .run();
 }
 
-const FILE_DATA: &str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<map version=\"1.10\" tiledversion=\"1.11.0\" orientation=\"orthogonal\" renderorder=\"right-down\" width=\"30\" height=\"30\" tilewidth=\"16\" tileheight=\"16\" infinite=\"0\" nextlayerid=\"3\" nextobjectid=\"8\">
- <tileset firstgid=\"1\" source=\"../../sprites.tsx\"/>
- <layer id=\"1\" name=\"Floor\" width=\"30\" height=\"30\" locked=\"1\">
-  <data encoding=\"csv\">
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,1,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-</data>
- </layer>
- <objectgroup id=\"2\" name=\"Objects\">
-  <object id=\"1\" template=\"../../templates/adventurer.tx\" type=\"Adventurer\" x=\"128\" y=\"208\"/>
-  <object id=\"2\" template=\"../../templates/goblinoid.tx\" type=\"Goblinoid\" x=\"160\" y=\"272\"/>
-  <object id=\"4\" template=\"../../templates/treasure.tx\" type=\"Treasure\" x=\"160\" y=\"208\"/>
-  <object id=\"7\" template=\"../../templates/treasure.tx\" type=\"Treasure\" x=\"192\" y=\"256\"/>
-  <object id=\"5\" template=\"../../templates/exit.tx\" type=\"Exit\" x=\"112\" y=\"256\"/>
- </objectgroup>
-</map>
-";
+//Snagged from https://github.com/bevyengine/bevy/blob/latest/examples/asset/processing/asset_processing.rs
 
-fn hello_world() {
-    let doc = Document::parse(FILE_DATA).expect("can't parse document");
-    let elem = doc.descendants().find(|n| n.tag_name() == "data".into()).expect("can't find data");
-    
-    println!("{:?}", elem.text());
+#[derive(Asset, TypePath, Debug)]
+struct Map(String);
+
+struct MapLoader;
+
+#[derive(Clone, Default, Serialize, Deserialize)]
+struct MapLoadSettings;
+
+impl AssetLoader for MapLoader {
+    type Asset = Map;
+    type Settings = MapLoadSettings;
+    type Error = Error;
+
+    async fn load<'a>(
+        &'a self,
+        reader: &'a mut Reader<'_>,
+        _: &'a MapLoadSettings,
+        _load_context: &'a mut LoadContext<'_>,
+    ) -> Result<Map, Error> {
+
+        let mut bytes = Vec::new();
+
+        reader.read_to_end(&mut bytes).await?;
+
+        match String::from_utf8(bytes) {
+            Ok(value) => {
+                return Ok(Map(value));
+            },
+            Err(e) => {
+                return Err(std::io::Error::new(ErrorKind::Other, e));
+            }
+        }
+    }
+
+    fn extensions(&self) -> &[&str] {
+        &["tmx"]
+    }
+}
+
+#[derive(Resource)]
+struct MapHandleIds {
+    tutorial_maps: Vec<Handle<Map>>
+}
+
+fn setup(mut commands: Commands, assets: Res<AssetServer>) {
+    commands.insert_resource(MapHandleIds {
+        tutorial_maps: vec![assets.load("res/maps/tutorial/0.tmx")]
+    });
+}
+
+fn hello_assets(
+    map_handles: Res<MapHandleIds>,
+    map_assets: Res<Assets<Map>>,
+) {
+    match map_assets.get(&map_handles.tutorial_maps[0]) {
+        Some(file_data) => {
+            let doc = Document::parse(&file_data.0).expect("can't parse document");
+            let elem = doc.descendants().find(|n| n.tag_name() == "data".into()).expect("can't find data");
+            
+            println!("{:?}", elem.text())
+        },
+        None => {}
+    }
 }
