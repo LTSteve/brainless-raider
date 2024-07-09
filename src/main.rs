@@ -2,7 +2,6 @@ mod map_loader;
 
 use map_loader::*;
 use bevy::prelude::*;
-use roxmltree::*;
 
 fn main() {
     App::new()
@@ -21,7 +20,7 @@ fn main() {
 
 #[derive(Resource)]
 struct MapHandleIds {
-    tutorial_maps: Vec<Handle<Map>>
+    tutorial_maps: Vec<Handle<RawMapData>>
 }
 
 fn setup(mut commands: Commands, assets: Res<AssetServer>) {
@@ -32,14 +31,16 @@ fn setup(mut commands: Commands, assets: Res<AssetServer>) {
 
 fn hello_assets(
     map_handles: Res<MapHandleIds>,
-    map_assets: Res<Assets<Map>>,
+    map_assets: Res<Assets<RawMapData>>,
 ) {
     match map_assets.get(&map_handles.tutorial_maps[0]) {
-        Some(file_data) => {
-            let doc = Document::parse(&file_data.0).expect("can't parse document");
-            let elem = doc.descendants().find(|n| n.tag_name() == "data".into()).expect("can't find data");
-            
-            println!("{:?}", elem.text())
+        Some(map_data) => {
+            for y in 0..map_data.height {
+                for x in 0..map_data.width {
+                    print!("{:?} ", map_data.data[y * map_data.width + x]);
+                }
+                println!();
+            }
         },
         None => {}
     }
