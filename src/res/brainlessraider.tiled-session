@@ -5,10 +5,10 @@
     },
     "activeFile": "maps/tutorial/4.tmx",
     "expandedProjectPaths": [
-        "maps",
-        "maps/tutorial",
         ".",
-        "templates"
+        "maps/tutorial",
+        "templates",
+        "maps"
     ],
     "fileStates": {
         "maps/tutorial/0.tmx": {
@@ -18,8 +18,8 @@
             "scale": 3,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 231.33333333333331,
-                "y": 242.33333333333331
+                "x": 240,
+                "y": 239.99999999999997
             }
         },
         "maps/tutorial/1.tmx": {
@@ -29,8 +29,8 @@
             "scale": 3,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 287,
-                "y": 250.33333333333331
+                "x": 240,
+                "y": 239.99999999999997
             }
         },
         "maps/tutorial/2.tmx": {
@@ -40,8 +40,8 @@
             "scale": 4,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 272.5,
-                "y": 241
+                "x": 240,
+                "y": 240
             }
         },
         "maps/tutorial/3.tmx": {
@@ -51,8 +51,8 @@
             "scale": 4,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 250,
-                "y": 259.25
+                "x": 240,
+                "y": 240
             }
         },
         "maps/tutorial/4.tmx": {
