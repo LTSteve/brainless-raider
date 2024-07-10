@@ -14,7 +14,7 @@ fn main() {
             MapLoaderPlugin,
         ))
         .add_systems(Startup, setup)
-        .add_systems(Update, hello_data)
+        .add_systems(OnEnter(MapLoadState::Done), (setup, hello_data))
         .run();
 }
 
@@ -25,7 +25,13 @@ struct MapHandleIds {
 
 fn setup(mut commands: Commands, assets: Res<AssetServer>) {
     commands.insert_resource(MapHandleIds {
-        tutorial_maps: vec![assets.load("res/maps/tutorial/0.tmx")]
+        tutorial_maps: vec![
+            assets.load("res/maps/tutorial/0.tmx"),
+            assets.load("res/maps/tutorial/1.tmx"),
+            assets.load("res/maps/tutorial/2.tmx"),
+            assets.load("res/maps/tutorial/3.tmx"),
+            assets.load("res/maps/tutorial/4.tmx")
+        ]
     });
 }
 
@@ -36,56 +42,20 @@ fn hello_data(
     template_assets: Res<Assets<TemplateData>>,
     image_assets: Res<Assets<Image>>
 ) {
-    let map = match map_assets.get(&map_handles.tutorial_maps[0]) {
-        Some(map) => map,
-        None => {
-            println!("map not loaded yet...");
-            return
-        }
-    };
+    let map = map_assets.get(&map_handles.tutorial_maps[0]).unwrap();
     println!("map loaded!");
 
-    let spritesheet = match spritesheet_assets.get(&map.sprite_sheet) {
-        Some(spritesheet) => spritesheet,
-        None => {
-            println!("spritesheet not loaded yet...");
-            return
-        }
-    };
+    let spritesheet = spritesheet_assets.get(&map.sprite_sheet).unwrap();
     println!("spritesheet loaded!");
 
-    let sprite = match image_assets.get(&spritesheet.sprite) {
-        Some(sprite) => sprite,
-        None => {
-            println!("sprite not loaded yet...");
-            return
-        }
-    };
+    let sprite = image_assets.get(&spritesheet.sprite).unwrap();
     println!("sprite loaded!");
 
-    let template = match template_assets.get(&map.objects[0].template) {
-        Some(template) => template,
-        None => {
-            println!("template not loaded yet...");
-            return
-        }
-    };
+    let template = template_assets.get(&map.objects[0].template).unwrap();
     println!("template loaded!");
 
-    let template_spritesheet = match spritesheet_assets.get(&template.sprite_sheet) {
-        Some(template_spritesheet) => template_spritesheet,
-        None => {
-            println!("template spritesheet not loaded yet...");
-            return
-        }
-    };
-    let template_sprite = match image_assets.get(&template_spritesheet.sprite) {
-        Some(template_sprite) => template_sprite,
-        None => {
-            println!("template spritesheet sprite not loaded yet...");
-            return
-        }
-    };
+    let template_spritesheet = spritesheet_assets.get(&template.sprite_sheet).unwrap();
+    let template_sprite = image_assets.get(&template_spritesheet.sprite).unwrap();
     println!("template spritesheet sprite loaded!");
 
     println!("spritesheet tile width: {:?}", spritesheet.tile_width);

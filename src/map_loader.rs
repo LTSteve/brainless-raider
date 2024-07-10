@@ -132,7 +132,7 @@ impl AssetLoader for MapLoader {
                             "file" => {
                                 properties.push(ObjectProperty::File { value: String::from(property_elm.attribute("value").expect("can't find value")) });
                             },
-                            "integer" => {
+                            "int" => {
                                 properties.push(ObjectProperty::Int { value: str::parse::<i64>(property_elm.attribute("value").expect("can't find value")).expect("can't parse value i64") });
                             },
                             "object" => {
@@ -141,7 +141,8 @@ impl AssetLoader for MapLoader {
                             "string" => {
                                 properties.push(ObjectProperty::Str { value: String::from(property_elm.attribute("value").expect("can't find value")) });
                             },
-                            &_ => {
+                            val => {
+                                println!("{:?}", val);
                                 todo!();
                             }
                         }
@@ -292,7 +293,8 @@ impl AssetLoader for TemplateLoader {
                         "string" => {
                             properties.push(ObjectProperty::Str { value: String::from(property_elm.attribute("value").expect("can't find value")) });
                         },
-                        &_ => {
+                        val => {
+                            println!("{:?}", val);
                             todo!();
                         }
                     }
@@ -387,6 +389,75 @@ impl Plugin for MapLoaderPlugin {
             .init_asset::<TemplateData>()
             .register_asset_loader(MapLoader)
             .register_asset_loader(SpriteSheetLoader)
-            .register_asset_loader(TemplateLoader);
+            .register_asset_loader(TemplateLoader)
+            .init_state::<MapLoadState>()
+            .add_systems(Update, (while_loading).run_if(in_state(MapLoadState::Loading)));
     }
+}
+
+fn while_loading(
+    mut next_state: ResMut<NextState<MapLoadState>>,
+    map_assets: Res<Assets<RawMapData>>,
+    spritesheet_assets: Res<Assets<SpritesheetData>>,
+    template_assets: Res<Assets<TemplateData>>,
+    image_assets: Res<Assets<Image>>
+) {
+    for (asset_id, asset) in map_assets.iter() {
+        match map_assets.get(asset_id) {
+            None => {
+                println!("loading...");
+                return;
+            },
+            Some(map_data) => {
+                match spritesheet_assets.get(&map_data.sprite_sheet) {
+                    None => {
+                        println!("loading...");
+                        return;
+                    },
+                    Some(spritesheet) => {
+                        match image_assets.get(&spritesheet.sprite) {
+                            None => {
+                                println!("loading...");
+                            },
+                            _ => {}
+                        }
+                    }
+                }
+                for o_ref in &map_data.objects {
+                    match template_assets.get(&o_ref.template) {
+                        None => {
+                            println!("loading...");
+                            return;
+                        },
+                        Some(template) => {
+                            match spritesheet_assets.get(&template.sprite_sheet) {
+                                None => {
+                                    println!("loading...");
+                                    return;
+                                },
+                                Some(spritesheet) => {
+                                    match image_assets.get(&spritesheet.sprite) {
+                                        None => {
+                                            println!("loading...");
+                                        },
+                                        _ => {}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    println!("loaded!");
+    next_state.set(MapLoadState::Done);
+}
+
+// States
+#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
+pub enum MapLoadState {
+    #[default]
+    Loading,
+    Done
 }
