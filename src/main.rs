@@ -11,55 +11,31 @@ fn main() {
                 file_path: "src".to_string(),
                 ..default()
             }),
-            MapLoaderPlugin,
+            MapLoaderPlugin(vec![
+                String::from("res/maps/tutorial/0.tmx"),
+                String::from("res/maps/tutorial/1.tmx"),
+                String::from("res/maps/tutorial/2.tmx"),
+                String::from("res/maps/tutorial/3.tmx"),
+                String::from("res/maps/tutorial/4.tmx")
+            ]),
         ))
-        .add_systems(Startup, setup)
-        .add_systems(OnEnter(MapLoadState::Done), (setup, hello_data))
+        .add_systems(OnEnter(MapLoadState::Done), (hello_map))
         .run();
 }
 
-#[derive(Resource)]
-struct MapHandleIds {
-    tutorial_maps: Vec<Handle<RawMapData>>
-}
-
-fn setup(mut commands: Commands, assets: Res<AssetServer>) {
-    commands.insert_resource(MapHandleIds {
-        tutorial_maps: vec![
-            assets.load("res/maps/tutorial/0.tmx"),
-            assets.load("res/maps/tutorial/1.tmx"),
-            assets.load("res/maps/tutorial/2.tmx"),
-            assets.load("res/maps/tutorial/3.tmx"),
-            assets.load("res/maps/tutorial/4.tmx")
-        ]
-    });
-}
-
-fn hello_data(
-    map_handles: Res<MapHandleIds>,
-    map_assets: Res<Assets<RawMapData>>,
-    spritesheet_assets: Res<Assets<SpritesheetData>>,
-    template_assets: Res<Assets<TemplateData>>,
+fn hello_map(
+    map_server: Res<MapServer>,
     image_assets: Res<Assets<Image>>
 ) {
-    let map = map_assets.get(&map_handles.tutorial_maps[0]).unwrap();
-    println!("map loaded!");
+    let map = &map_server.tutorial_maps[0];
 
-    let spritesheet = spritesheet_assets.get(&map.sprite_sheet).unwrap();
-    println!("spritesheet loaded!");
+    let spritesheet = &map.sprite_sheet;
 
     let sprite = image_assets.get(&spritesheet.sprite).unwrap();
-    println!("sprite loaded!");
 
-    let template = template_assets.get(&map.objects[0].template).unwrap();
-    println!("template loaded!");
-
-    let template_spritesheet = spritesheet_assets.get(&template.sprite_sheet).unwrap();
-    let template_sprite = image_assets.get(&template_spritesheet.sprite).unwrap();
-    println!("template spritesheet sprite loaded!");
-
+    let object = &map.objects[0];
+    
     println!("spritesheet tile width: {:?}", spritesheet.tile_width);
     println!("sprite height: {:?}", sprite.height());
-    println!("template sprite idx: {:?}", template.sprite_idx);
-    println!("template spritesheet sprite is the same as the spritesheet sprite?: {:?}", std::ptr::eq(template_sprite, sprite));
+    println!("object sprite idx: {:?}", object.sprite_idx);
 }

@@ -5,21 +5,40 @@ use bevy::asset::{
     io::Reader,
     AssetLoader, AsyncReadExt, LoadContext,
 };
-use core::net;
 use std::io::ErrorKind;
 use std::io::Error;
 use std::u8;
 
-// Map Data Phase 2
+// Map Data Final
+
+#[derive(Debug,Resource)]
+pub struct MapServer {
+    pub tutorial_maps: Vec<MapData>
+}
+
+#[derive(Debug)]
+pub struct MapData {
+    pub width: usize,
+    pub height: usize,
+    pub tile_width: u16,
+    pub data: Vec<u8>,
+    pub objects: Vec<ObjectData>,
+    pub sprite_sheet: SpritesheetData
+}
+
 #[derive(Debug)]
 pub struct ObjectData {
+    pub obj_type: String,
     pub id: u16,
+    pub sprite_sheet: SpritesheetData,
+    pub sprite_idx: u32,
     pub x: u16,
     pub y: u16,
     pub properties: Vec<ObjectProperty>
 }
 
-#[derive(Asset, TypePath, Debug)]
+// Map Data Phase 2
+#[derive(Asset, TypePath, Debug, Clone)]
 pub struct SpritesheetData {
     pub tile_width: u8,
     pub columns: u32,
@@ -40,6 +59,7 @@ pub struct ObjectReference {
     pub template: Handle<TemplateData>,
     pub x: u16,
     pub y: u16,
+    pub obj_type: String,
     pub properties: Vec<ObjectProperty>
 }
 
@@ -47,6 +67,7 @@ pub struct ObjectReference {
 pub struct RawMapData {
     pub width: usize,
     pub height: usize,
+    pub tile_width: u16,
     pub data: Vec<u8>,
     pub objects: Vec<ObjectReference>,
     pub sprite_sheet: Handle<SpritesheetData>
@@ -119,44 +140,22 @@ impl AssetLoader for MapLoader {
                     for property_elm in elm.children() {
                         if !property_elm.is_element() { continue; }
 
-                        match property_elm.attribute("type").expect("can't parse property type") {
-                            "bool" => {
-                                properties.push(ObjectProperty::Bool { value: str::parse::<bool>(property_elm.attribute("value").expect("can't find value")).expect("can't parse value bool") });
-                            },
-                            "color" => {
-                                properties.push(ObjectProperty::Color { value: Color::WHITE });
-                            },
-                            "float" => {
-                                properties.push(ObjectProperty::Float { value: str::parse::<f64>(property_elm.attribute("value").expect("can't find value")).expect("can't parse value f64") });
-                            },
-                            "file" => {
-                                properties.push(ObjectProperty::File { value: String::from(property_elm.attribute("value").expect("can't find value")) });
-                            },
-                            "int" => {
-                                properties.push(ObjectProperty::Int { value: str::parse::<i64>(property_elm.attribute("value").expect("can't find value")).expect("can't parse value i64") });
-                            },
-                            "object" => {
-                                properties.push(ObjectProperty::Obj { value: str::parse::<u32>(property_elm.attribute("value").expect("can't find value")).expect("can't parse value u32") });
-                            },
-                            "string" => {
-                                properties.push(ObjectProperty::Str { value: String::from(property_elm.attribute("value").expect("can't find value")) });
-                            },
-                            val => {
-                                println!("{:?}", val);
-                                todo!();
-                            }
-                        }
+                        properties.push(object_property_from_property_element(property_elm));
                     }
                 }
                 None => {}
             }
+
+            //snag type
+            let obj_type = match object_elm.attribute("type") { Some(val) => val, None => "none" };
 
             objects.push(ObjectReference {
                 id: str::parse::<u16>(object_elm.attribute("id").expect("can't find id")).expect("can't convert id into u16"),
                 template: load_context.load(local_path_to_project_path(object_elm.attribute("template").expect("can't parse template"),&load_context.asset_path().to_string())),
                 x: (str::parse::<f64>(object_elm.attribute("x").expect("can't find x")).expect("can't convert x into f64") / f64::from(tile_width)) as u16,
                 y: (str::parse::<f64>(object_elm.attribute("y").expect("can't find y")).expect("can't convert y into f64") / f64::from(tile_width)) as u16,
-                properties
+                properties,
+                obj_type: String::from(obj_type)
             });
         }
 
@@ -168,6 +167,7 @@ impl AssetLoader for MapLoader {
             height: h,
             data,
             objects,
+            tile_width,
             sprite_sheet: load_context.load(local_path_to_project_path(sprite_sheet_path, &load_context.asset_path().to_string()))
         });
     }
@@ -270,34 +270,8 @@ impl AssetLoader for TemplateLoader {
             Some(elm) => {
                 for property_elm in elm.children() {
                     if !property_elm.is_element() { continue; }
-
-                    match property_elm.attribute("type").expect("can't parse property type") {
-                        "bool" => {
-                            properties.push(ObjectProperty::Bool { value: str::parse::<bool>(property_elm.attribute("value").expect("can't find value")).expect("can't parse value bool") });
-                        },
-                        "color" => {
-                            properties.push(ObjectProperty::Color { value: Color::WHITE });
-                        },
-                        "float" => {
-                            properties.push(ObjectProperty::Float { value: str::parse::<f64>(property_elm.attribute("value").expect("can't find value")).expect("can't parse value f64") });
-                        },
-                        "file" => {
-                            properties.push(ObjectProperty::File { value: String::from(property_elm.attribute("value").expect("can't find value")) });
-                        },
-                        "int" => {
-                            properties.push(ObjectProperty::Int { value: str::parse::<i64>(property_elm.attribute("value").expect("can't find value")).expect("can't parse value i64") });
-                        },
-                        "object" => {
-                            properties.push(ObjectProperty::Obj { value: str::parse::<u32>(property_elm.attribute("value").expect("can't find value")).expect("can't parse value u32") });
-                        },
-                        "string" => {
-                            properties.push(ObjectProperty::Str { value: String::from(property_elm.attribute("value").expect("can't find value")) });
-                        },
-                        val => {
-                            println!("{:?}", val);
-                            todo!();
-                        }
-                    }
+                    
+                    properties.push(object_property_from_property_element(property_elm));
                 }
             }
             None => {}
@@ -315,8 +289,13 @@ impl AssetLoader for TemplateLoader {
     }
 }
 
-#[derive(Debug)]
-pub enum ObjectProperty {
+#[derive(Debug, Clone)]
+pub struct ObjectProperty {
+    pub value: ObjectPropertyValue,
+    pub name: String
+}
+#[derive(Debug, Clone)]
+pub enum ObjectPropertyValue {
     Bool {
         value: bool
     },
@@ -378,8 +357,41 @@ fn local_path_to_project_path(path:&str, local_path:&str) -> String {
     return new_path;
 }
 
+fn object_property_from_property_element(property_elm: roxmltree::Node) -> ObjectProperty{
+    return ObjectProperty {
+        name: String::from(property_elm.attribute("name").expect("can't find name")),
+        value: match property_elm.attribute("type").expect("can't parse property type") {
+            "bool" => {
+                ObjectPropertyValue::Bool{ value: str::parse::<bool>(property_elm.attribute("value").expect("can't find value")).expect("can't parse value bool") }
+            },
+            "color" => {
+                ObjectPropertyValue::Color{ value: Color::WHITE }
+            },
+            "float" => {
+                ObjectPropertyValue::Float{ value: str::parse::<f64>(property_elm.attribute("value").expect("can't find value")).expect("can't parse value f64") }
+            },
+            "file" => {
+                ObjectPropertyValue::File{ value: String::from(property_elm.attribute("value").expect("can't find value")) }
+            },
+            "int" => {
+                ObjectPropertyValue::Int{ value: str::parse::<i64>(property_elm.attribute("value").expect("can't find value")).expect("can't parse value i64") }
+            },
+            "object" => {
+                ObjectPropertyValue::Obj{ value: str::parse::<u32>(property_elm.attribute("value").expect("can't find value")).expect("can't parse value u32") }
+            },
+            "string" => {
+                ObjectPropertyValue::Str{ value: String::from(property_elm.attribute("value").expect("can't find value")) }
+            },
+            val => {
+                println!("{:?}", val);
+                todo!();    
+            }
+        }
+    };    
+}
+
 // Plugin
-pub struct MapLoaderPlugin;
+pub struct MapLoaderPlugin(pub Vec::<String>);
 
 impl Plugin for MapLoaderPlugin {
     fn build(&self, app: &mut App) {
@@ -390,9 +402,88 @@ impl Plugin for MapLoaderPlugin {
             .register_asset_loader(MapLoader)
             .register_asset_loader(SpriteSheetLoader)
             .register_asset_loader(TemplateLoader)
+            .insert_resource(MapPaths(self.0.clone()))
             .init_state::<MapLoadState>()
-            .add_systems(Update, (while_loading).run_if(in_state(MapLoadState::Loading)));
+            .add_systems(Startup, start_loading_maps)
+            .add_systems(Update, (while_loading).run_if(in_state(MapLoadState::Loading)))
+            .add_systems(OnExit(MapLoadState::Loading), create_map_server);
     }
+}
+
+#[derive(Resource)]
+struct MapPaths(Vec::<String>);
+
+#[derive(Resource)]
+struct MapHandleIds {
+    maps: Vec<Handle<RawMapData>>
+}
+
+fn start_loading_maps(
+    mut commands: Commands, 
+    asset_server: Res<AssetServer>,
+    map_paths: Res<MapPaths>
+) {
+    let mut maps = Vec::<Handle<RawMapData>>::new();
+    for path in map_paths.0.iter() {
+        maps.push(asset_server.load(path));
+    }
+    commands.insert_resource(MapHandleIds{maps});
+    commands.remove_resource::<MapPaths>();
+}
+
+fn create_map_server(
+    mut commands: Commands,
+    map_assets: Res<Assets<RawMapData>>,
+    spritesheet_assets: Res<Assets<SpritesheetData>>,
+    template_assets: Res<Assets<TemplateData>>,
+    map_handles: Res<MapHandleIds>
+) {
+    let mut map_server = MapServer{
+        tutorial_maps: Vec::<MapData>::new()
+    };
+
+    for map_handle in map_handles.maps.iter() {
+        let mut objects = Vec::<ObjectData>::new();
+        let asset = map_assets.get(map_handle).unwrap();
+
+        for object_ref in &asset.objects {
+            let template = template_assets.get(&object_ref.template).unwrap();
+            let mut properties = template.properties.clone();
+
+            for property in &object_ref.properties {
+                let existing_property_index_option = &properties.iter().position(|prop| {
+                    property.name == prop.name
+                });
+                if existing_property_index_option.is_none() {
+                    properties.push(property.clone());
+                    continue;
+                }
+                let existing_property_idx = existing_property_index_option.unwrap();
+                properties[existing_property_idx].value = property.value.clone();
+            }
+
+            objects.push(ObjectData {
+                obj_type: object_ref.obj_type.clone(),
+                id: object_ref.id,
+                x: object_ref.x,
+                y: object_ref.y,
+                sprite_idx: template.sprite_idx,
+                sprite_sheet: spritesheet_assets.get(&template.sprite_sheet).unwrap().clone(),
+                properties
+            });
+        }
+
+        map_server.tutorial_maps.push(MapData {
+            width: asset.width,
+            height: asset.height,
+            tile_width: asset.tile_width,
+            data: asset.data.clone(),
+            objects,
+            sprite_sheet: spritesheet_assets.get(&asset.sprite_sheet).unwrap().clone()
+        });
+    }
+
+    commands.insert_resource(map_server)
 }
 
 fn while_loading(
@@ -400,10 +491,11 @@ fn while_loading(
     map_assets: Res<Assets<RawMapData>>,
     spritesheet_assets: Res<Assets<SpritesheetData>>,
     template_assets: Res<Assets<TemplateData>>,
-    image_assets: Res<Assets<Image>>
+    image_assets: Res<Assets<Image>>,
+    map_handles: Res<MapHandleIds>
 ) {
-    for (asset_id, asset) in map_assets.iter() {
-        match map_assets.get(asset_id) {
+    for map_handle in map_handles.maps.iter() {
+        match map_assets.get(map_handle) {
             None => {
                 println!("loading...");
                 return;
@@ -418,6 +510,7 @@ fn while_loading(
                         match image_assets.get(&spritesheet.sprite) {
                             None => {
                                 println!("loading...");
+                                return;
                             },
                             _ => {}
                         }
@@ -439,6 +532,7 @@ fn while_loading(
                                     match image_assets.get(&spritesheet.sprite) {
                                         None => {
                                             println!("loading...");
+                                            return;
                                         },
                                         _ => {}
                                     }
