@@ -23,18 +23,26 @@ pub struct MapData {
     pub tile_width: u16,
     pub data: Vec<u8>,
     pub objects: Vec<ObjectData>,
-    pub sprite_sheet: SpritesheetData
+    pub sprite_sheet: TextureAtlasData
 }
 
 #[derive(Debug)]
 pub struct ObjectData {
     pub obj_type: String,
     pub id: u16,
-    pub sprite_sheet: SpritesheetData,
+    pub sprite_sheet: TextureAtlasData,
     pub sprite_idx: u32,
     pub x: u16,
     pub y: u16,
     pub properties: Vec<ObjectProperty>
+}
+
+#[derive(Debug)]
+pub struct TextureAtlasData {
+    pub tile_width: u8,
+    pub columns: u32,
+    pub sprite: Handle<Image>,
+    pub texture_atlas_layout: Handle<TextureAtlasLayout>
 }
 
 // Map Data Phase 2
@@ -436,7 +444,8 @@ fn create_map_server(
     map_assets: Res<Assets<RawMapData>>,
     spritesheet_assets: Res<Assets<SpritesheetData>>,
     template_assets: Res<Assets<TemplateData>>,
-    map_handles: Res<MapHandleIds>
+    map_handles: Res<MapHandleIds>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>
 ) {
     let mut map_server = MapServer{
         tutorial_maps: Vec::<MapData>::new()
@@ -462,16 +471,25 @@ fn create_map_server(
                 properties[existing_property_idx].value = property.value.clone();
             }
 
+            let template_sprite_sheet = spritesheet_assets.get(&template.sprite_sheet).unwrap();
+
             objects.push(ObjectData {
                 obj_type: object_ref.obj_type.clone(),
                 id: object_ref.id,
                 x: object_ref.x,
                 y: object_ref.y,
                 sprite_idx: template.sprite_idx,
-                sprite_sheet: spritesheet_assets.get(&template.sprite_sheet).unwrap().clone(),
+                sprite_sheet: TextureAtlasData {
+                    tile_width: template_sprite_sheet.tile_width,
+                    columns: template_sprite_sheet.columns,
+                    sprite: template_sprite_sheet.sprite.clone(),
+                    texture_atlas_layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(UVec2::splat(template_sprite_sheet.tile_width.into()), template_sprite_sheet.columns, 1, None, None))
+                },
                 properties
             });
         }
+
+        let map_sprite_sheet = spritesheet_assets.get(&asset.sprite_sheet).unwrap();
 
         map_server.tutorial_maps.push(MapData {
             width: asset.width,
@@ -479,7 +497,12 @@ fn create_map_server(
             tile_width: asset.tile_width,
             data: asset.data.clone(),
             objects,
-            sprite_sheet: spritesheet_assets.get(&asset.sprite_sheet).unwrap().clone()
+            sprite_sheet: TextureAtlasData {
+                tile_width: map_sprite_sheet.tile_width,
+                columns: map_sprite_sheet.columns,
+                sprite: map_sprite_sheet.sprite.clone(),
+                texture_atlas_layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(UVec2::splat(map_sprite_sheet.tile_width.into()), map_sprite_sheet.columns, 1, None, None))
+            }
         });
     }
 
