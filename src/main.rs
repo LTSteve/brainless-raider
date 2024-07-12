@@ -3,6 +3,15 @@ mod map_loader;
 use map_loader::*;
 use bevy::prelude::*;
 
+const FLOOR_Z:f32 = 0.0;
+const ENTITY_Z:f32 = 1.0;
+const SCALE:f32 = 4.0;
+
+const TILE_WIDTH:f32 = 16.0;
+const HALF_TILE_WIDTH:f32 = 8.0;
+const MAP_WIDTH:f32 = 30.0 * TILE_WIDTH;
+const HALF_MAP_WIDTH:f32 = 15.0 * TILE_WIDTH;
+
 fn main() {
     App::new()
         .add_plugins((
@@ -30,11 +39,6 @@ fn setup_scene(
     let map = &map_server.tutorial_maps[0];
     let texture = &map.sprite_sheet.sprite;
 
-    let half_tile_width = map.tile_width as f32 / 2.0;
-    let half_map_width = map.width as f32 * half_tile_width;
-
-    let scale: f32 = 4.0;
-
     commands.spawn(Camera2dBundle::default());
 
     for idx in 0..map.data.len() {
@@ -42,15 +46,12 @@ fn setup_scene(
 
         let x = idx % map.width;
         let y = idx / map.width;
-
-        let x_pos = (x as f32 * map.tile_width as f32 - half_map_width + half_tile_width) * scale;
-        let y_pos = (y as f32 * map.tile_width as f32 - half_map_width + half_tile_width) * scale;
-
+        
         commands.spawn((
             SpriteBundle {
                 transform: Transform {
-                    translation: Vec3{x:x_pos, y:y_pos, z:0.0},
-                    scale: Vec3::splat(scale),
+                    translation: Vec3{x:coord_to_pos(x as f32), y:-coord_to_pos(y as f32), z:FLOOR_Z},
+                    scale: Vec3::splat(SCALE),
                     ..default()
                 },
                 texture: texture.clone(),
@@ -62,4 +63,26 @@ fn setup_scene(
             }
         ));
     }
+    
+    for obj in map.objects.iter() {
+        commands.spawn((
+            SpriteBundle {
+                transform: Transform {
+                    translation: Vec3{x: coord_to_pos(obj.x as f32), y: -coord_to_pos(obj.y as f32 - 1.0), z: ENTITY_Z},
+                    scale: Vec3::splat(SCALE),
+                    ..default()
+                },
+                texture: texture.clone(),
+                ..default()
+            },
+            TextureAtlas {
+                layout: obj.sprite_sheet.texture_atlas_layout.clone(),
+                index: obj.sprite_idx as usize - 1
+            }
+        ));
+    }
+}
+
+fn coord_to_pos(val: f32) -> f32 {
+    return (val * TILE_WIDTH - HALF_MAP_WIDTH + HALF_TILE_WIDTH) * SCALE;
 }
