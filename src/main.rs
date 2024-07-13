@@ -1,6 +1,7 @@
 mod map_loader;
+mod brmap;
 
-use map_loader::*;
+use brmap::*;
 use bevy::prelude::*;
 
 const FLOOR_Z:f32 = 0.0;
@@ -20,7 +21,7 @@ fn main() {
                 file_path: "res".to_string(),
                 ..default()
             }).set(ImagePlugin::default_nearest()),
-            MapLoaderPlugin(vec![
+            BRMapPlugin(vec![
                 String::from("maps/tutorial/0.tmx"),
                 String::from("maps/tutorial/1.tmx"),
                 String::from("maps/tutorial/2.tmx"),
@@ -60,24 +61,6 @@ fn setup_scene(
             TextureAtlas {
                 layout: map.sprite_sheet.texture_atlas_layout.clone(),
                 index: (map.data[idx] as usize) - 1
-            }
-        ));
-    }
-    
-    for obj in map.objects.iter() {
-        commands.spawn((
-            SpriteBundle {
-                transform: Transform {
-                    translation: Vec3{x: coord_to_pos(obj.x as f32), y: -coord_to_pos(obj.y as f32 - 1.0), z: ENTITY_Z},
-                    scale: Vec3::splat(SCALE),
-                    ..default()
-                },
-                texture: texture.clone(),
-                ..default()
-            },
-            TextureAtlas {
-                layout: obj.sprite_sheet.texture_atlas_layout.clone(),
-                index: obj.sprite_idx as usize - 1
             }
         ));
     }
