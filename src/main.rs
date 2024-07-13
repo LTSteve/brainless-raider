@@ -30,8 +30,18 @@ fn main() {
             ]),
         ))
         .add_systems(OnEnter(MapLoadState::Done), setup_scene)
+        .add_systems(Update, (move_movers).run_if(in_state(MapLoadState::Done)))
         .run();
 }
+
+// Components
+
+#[derive(Debug, Component)]
+struct Mover {
+    data: String
+}
+
+// Systems
 
 fn setup_scene(
     mut commands: Commands,
@@ -64,7 +74,51 @@ fn setup_scene(
             }
         ));
     }
+    
+    for obj in map.objects.iter() {
+        let sprite_bundle = SpriteBundle {
+            transform: Transform {
+                translation: Vec3{x: coord_to_pos(obj.x as f32), y: -coord_to_pos(obj.y as f32 - 1.0), z: ENTITY_Z},
+                scale: Vec3::splat(SCALE),
+                ..default()
+            },
+            texture: texture.clone(),
+            ..default()
+        };
+        let texture_atlas = TextureAtlas {
+            layout: obj.sprite_sheet.texture_atlas_layout.clone(),
+            index: obj.sprite_idx as usize - 1
+        };
+
+        if obj.obj_type == "Adventurer" {
+            commands.spawn((
+                sprite_bundle,
+                texture_atlas,
+                Mover {
+                    data: String::from("asdf")
+                }
+            ));
+        }
+        else {
+            commands.spawn((
+                sprite_bundle,
+                texture_atlas
+            ));
+        }
+    }
 }
+
+fn move_movers(
+    mut movers: Query<(&mut Transform, &Mover)>,
+    time: Res<Time>,
+    map_server: Res<MapServer>
+) {
+    for (mut transform, _) in movers.iter_mut() {
+        transform.translation.x += 10.0 * time.delta_seconds();
+    }
+}
+
+// Helpers
 
 fn coord_to_pos(val: f32) -> f32 {
     return (val * TILE_WIDTH - HALF_MAP_WIDTH + HALF_TILE_WIDTH) * SCALE;
