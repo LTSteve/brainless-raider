@@ -1,0 +1,7 @@
+if [[ $1 ]]; then
+git add . *
+git commit -m "\"$1\""
+git push https://LTSteve:$(sudo printenv GITHUB_TOKEN)@github.com/LTSteve/brainless-raider.git
+else
+echo "missing commit message"
+fi
