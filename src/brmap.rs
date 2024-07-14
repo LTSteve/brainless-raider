@@ -126,7 +126,7 @@ fn create_map_server(
                     tile_width: template_sprite_sheet.tile_width,
                     columns: template_sprite_sheet.columns,
                     sprite: template_sprite_sheet.sprite.clone(),
-                    texture_atlas_layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(UVec2::splat(template_sprite_sheet.tile_width.into()), template_sprite_sheet.columns, 1, None, None))
+                    texture_atlas_layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(Vec2::splat(template_sprite_sheet.tile_width.into()), template_sprite_sheet.columns as usize, 1, None, None))
                 },
                 properties
             });
@@ -144,7 +144,7 @@ fn create_map_server(
                 tile_width: map_sprite_sheet.tile_width,
                 columns: map_sprite_sheet.columns,
                 sprite: map_sprite_sheet.sprite.clone(),
-                texture_atlas_layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(UVec2::splat(map_sprite_sheet.tile_width.into()), map_sprite_sheet.columns, 1, None, None))
+                texture_atlas_layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(Vec2::splat(map_sprite_sheet.tile_width.into()), map_sprite_sheet.columns as usize, 1, None, None))
             }
         });
     }

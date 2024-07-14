@@ -8,6 +8,7 @@ use bevy::asset::{
 use std::io::ErrorKind;
 use std::io::Error;
 use std::u8;
+use bevy_utils::BoxedFuture;
 
 pub struct MapLoaderPlugin;
 impl Plugin for MapLoaderPlugin {
@@ -96,91 +97,93 @@ impl AssetLoader for MapLoader {
     type Settings = MapLoadSettings;
     type Error = Error;
 
-    async fn load<'a>(
+    fn load<'a>(
         &'a self,
         reader: &'a mut Reader<'_>,
         _settings: &'a MapLoadSettings,
         load_context: &'a mut LoadContext<'_>,
-    ) -> Result<RawMapData, Error> {
-        let mut bytes = Vec::new();
+    ) -> BoxedFuture<'a, Result<RawMapData, Error>> {
+        return Box::pin(async move {
+            let mut bytes = Vec::new();
 
-        reader.read_to_end(&mut bytes).await?;
-
-        let parse_result = String::from_utf8(bytes);
-        if parse_result.is_err() {
-            return Err(std::io::Error::new(ErrorKind::Other, parse_result.unwrap_err()));
-        }
-
-        let file_data = parse_result.unwrap();
-
-        let doc = Document::parse(&file_data).expect("can't parse document");
-        let tile_width = str::parse::<u16>(
-            doc.descendants()
-                .find(|n| n.tag_name() == "map".into())
-                .expect("can't parse map")
-                .attribute("tilewidth")
-                .expect("can't parse tilewidth")).expect("can't convert tilewith into u16");
-
-        // Snag Floor Data
-        let layer_elem = doc.descendants().find(|n| n.tag_name() == "layer".into()).expect("can't find layer");
-        let mut floor_str = doc.descendants().find(|n| n.tag_name() == "data".into()).expect("can't find data").text().expect("couldn't unwrap data str").to_string();
-        floor_str.retain(|c| return c != '\n' && !c.is_whitespace());
-        let floor_data = floor_str.split(',');
-
-        let w = layer_elem.attribute("width").expect("can't find width").parse::<usize>().expect("failed unwrapping width value");
-        let h = layer_elem.attribute("height").expect("can't find height").parse::<usize>().expect("failed unwrapping height value");
-
-        let mut data = vec![0; w * h];
-        let mut idx = 0;
-        for num in floor_data {
-            data[idx] = num.parse::<u8>().expect("failed at parsing a number");
-            idx += 1;
-        }
-
-        // Snag Objects Data
-        let mut objects = Vec::<ObjectReference>::new();
-        let object_group_elm = doc.descendants().find(|n| n.tag_name() == "objectgroup".into()).expect("can't find objectgroup");
-        for object_elm in object_group_elm.children() {
-            if !object_elm.is_element() {
-                continue;
+            reader.read_to_end(&mut bytes).await?;
+    
+            let parse_result = String::from_utf8(bytes);
+            if parse_result.is_err() {
+                return Err(std::io::Error::new(ErrorKind::Other, parse_result.unwrap_err()));
             }
-            let mut properties = Vec::<ObjectProperty>::new();
-
-            let properties_elm = object_elm.descendants().find(|n| n.tag_name() == "properties".into());
-            match properties_elm {
-                Some(elm) => {
-                    for property_elm in elm.children() {
-                        if !property_elm.is_element() { continue; }
-
-                        properties.push(object_property_from_property_element(property_elm));
-                    }
+    
+            let file_data = parse_result.unwrap();
+    
+            let doc = Document::parse(&file_data).expect("can't parse document");
+            let tile_width = str::parse::<u16>(
+                doc.descendants()
+                    .find(|n| n.tag_name() == "map".into())
+                    .expect("can't parse map")
+                    .attribute("tilewidth")
+                    .expect("can't parse tilewidth")).expect("can't convert tilewith into u16");
+    
+            // Snag Floor Data
+            let layer_elem = doc.descendants().find(|n| n.tag_name() == "layer".into()).expect("can't find layer");
+            let mut floor_str = doc.descendants().find(|n| n.tag_name() == "data".into()).expect("can't find data").text().expect("couldn't unwrap data str").to_string();
+            floor_str.retain(|c| return c != '\n' && !c.is_whitespace());
+            let floor_data = floor_str.split(',');
+    
+            let w = layer_elem.attribute("width").expect("can't find width").parse::<usize>().expect("failed unwrapping width value");
+            let h = layer_elem.attribute("height").expect("can't find height").parse::<usize>().expect("failed unwrapping height value");
+    
+            let mut data = vec![0; w * h];
+            let mut idx = 0;
+            for num in floor_data {
+                data[idx] = num.parse::<u8>().expect("failed at parsing a number");
+                idx += 1;
+            }
+    
+            // Snag Objects Data
+            let mut objects = Vec::<ObjectReference>::new();
+            let object_group_elm = doc.descendants().find(|n| n.tag_name() == "objectgroup".into()).expect("can't find objectgroup");
+            for object_elm in object_group_elm.children() {
+                if !object_elm.is_element() {
+                    continue;
                 }
-                None => {}
+                let mut properties = Vec::<ObjectProperty>::new();
+    
+                let properties_elm = object_elm.descendants().find(|n| n.tag_name() == "properties".into());
+                match properties_elm {
+                    Some(elm) => {
+                        for property_elm in elm.children() {
+                            if !property_elm.is_element() { continue; }
+    
+                            properties.push(object_property_from_property_element(property_elm));
+                        }
+                    }
+                    None => {}
+                }
+    
+                //snag type
+                let obj_type = match object_elm.attribute("type") { Some(val) => val, None => "none" };
+    
+                objects.push(ObjectReference {
+                    id: str::parse::<u16>(object_elm.attribute("id").expect("can't find id")).expect("can't convert id into u16"),
+                    template: load_context.load(local_path_to_project_path(object_elm.attribute("template").expect("can't parse template"),&load_context.asset_path().to_string())),
+                    x: (str::parse::<f64>(object_elm.attribute("x").expect("can't find x")).expect("can't convert x into f64") / f64::from(tile_width)) as u16,
+                    y: (str::parse::<f64>(object_elm.attribute("y").expect("can't find y")).expect("can't convert y into f64") / f64::from(tile_width)) as u16,
+                    properties,
+                    obj_type: String::from(obj_type)
+                });
             }
-
-            //snag type
-            let obj_type = match object_elm.attribute("type") { Some(val) => val, None => "none" };
-
-            objects.push(ObjectReference {
-                id: str::parse::<u16>(object_elm.attribute("id").expect("can't find id")).expect("can't convert id into u16"),
-                template: load_context.load(local_path_to_project_path(object_elm.attribute("template").expect("can't parse template"),&load_context.asset_path().to_string())),
-                x: (str::parse::<f64>(object_elm.attribute("x").expect("can't find x")).expect("can't convert x into f64") / f64::from(tile_width)) as u16,
-                y: (str::parse::<f64>(object_elm.attribute("y").expect("can't find y")).expect("can't convert y into f64") / f64::from(tile_width)) as u16,
-                properties,
-                obj_type: String::from(obj_type)
+    
+            // Snag SpriteSheet Data
+            let sprite_sheet_path = doc.descendants().find(|n| n.tag_name() == "tileset".into()).expect("can't find tileset").attribute("source").expect("can't find tileset source");
+    
+            return Ok(RawMapData{
+                width: w,
+                height: h,
+                data,
+                objects,
+                tile_width,
+                sprite_sheet: load_context.load(local_path_to_project_path(sprite_sheet_path, &load_context.asset_path().to_string()))
             });
-        }
-
-        // Snag SpriteSheet Data
-        let sprite_sheet_path = doc.descendants().find(|n| n.tag_name() == "tileset".into()).expect("can't find tileset").attribute("source").expect("can't find tileset source");
-
-        return Ok(RawMapData{
-            width: w,
-            height: h,
-            data,
-            objects,
-            tile_width,
-            sprite_sheet: load_context.load(local_path_to_project_path(sprite_sheet_path, &load_context.asset_path().to_string()))
         });
     }
 
@@ -198,35 +201,37 @@ impl AssetLoader for SpriteSheetLoader {
     type Settings = SpriteSheetLoadSettings;
     type Error = Error;
 
-    async fn load<'a>(
+    fn load<'a>(
         &'a self,
         reader: &'a mut Reader<'_>,
         _settings: &'a SpriteSheetLoadSettings,
         load_context: &'a mut LoadContext<'_>,
-    ) -> Result<SpritesheetData, Error> {
-        let mut bytes = Vec::new();
+    ) -> BoxedFuture<'a, Result<Self::Asset, Self::Error>> {
+        return Box::pin(async move {
+            let mut bytes = Vec::new();
 
-        reader.read_to_end(&mut bytes).await?;
+            reader.read_to_end(&mut bytes).await?;
 
-        let parse_result = String::from_utf8(bytes);
-        if parse_result.is_err() {
-            return Err(std::io::Error::new(ErrorKind::Other, parse_result.unwrap_err()));
-        }
+            let parse_result = String::from_utf8(bytes);
+            if parse_result.is_err() {
+                return Err(std::io::Error::new(ErrorKind::Other, parse_result.unwrap_err()));
+            }
 
-        let file_data = parse_result.unwrap();
+            let file_data = parse_result.unwrap();
 
-        let doc = Document::parse(&file_data).expect("can't parse document");
-        let tileset_elm = doc.descendants().find(|n| n.tag_name() == "tileset".into()).expect("can't load tileset");
+            let doc = Document::parse(&file_data).expect("can't parse document");
+            let tileset_elm = doc.descendants().find(|n| n.tag_name() == "tileset".into()).expect("can't load tileset");
 
-        let tile_width = str::parse::<u8>(tileset_elm.attribute("tilewidth").expect("can't find tilewidth")).expect("can't parse tilewidth");
-        let columns = str::parse::<u32>(tileset_elm.attribute("columns").expect("can't find columns")).expect("can't parse columns");
+            let tile_width = str::parse::<u8>(tileset_elm.attribute("tilewidth").expect("can't find tilewidth")).expect("can't parse tilewidth");
+            let columns = str::parse::<u32>(tileset_elm.attribute("columns").expect("can't find columns")).expect("can't parse columns");
 
-        let source = tileset_elm.descendants().find(|n| n.tag_name() == "image".into()).expect("can't find image element").attribute("source").expect("can't find image source");
+            let source = tileset_elm.descendants().find(|n| n.tag_name() == "image".into()).expect("can't find image element").attribute("source").expect("can't find image source");
 
-        return Ok(SpritesheetData {
-            tile_width,
-            columns,
-            sprite: load_context.load(local_path_to_project_path(source, &load_context.asset_path().to_string()))
+            return Ok(SpritesheetData {
+                tile_width,
+                columns,
+                sprite: load_context.load(local_path_to_project_path(source, &load_context.asset_path().to_string()))
+            });
         });
     }
 
@@ -244,51 +249,53 @@ impl AssetLoader for TemplateLoader {
     type Settings = TemplateLoadSettings;
     type Error = Error;
 
-    async fn load<'a>(
+    fn load<'a>(
         &'a self,
         reader: &'a mut Reader<'_>,
         _settings: &'a TemplateLoadSettings,
         load_context: &'a mut LoadContext<'_>,
-    ) -> Result<TemplateData, Error> {
-        let mut bytes = Vec::new();
+    ) -> BoxedFuture<'a, Result<Self::Asset, Self::Error>> {
+        return Box::pin(async move {
+            let mut bytes = Vec::new();
 
-        reader.read_to_end(&mut bytes).await?;
+            reader.read_to_end(&mut bytes).await?;
 
-        let parse_result = String::from_utf8(bytes);
-        if parse_result.is_err() {
-            return Err(std::io::Error::new(ErrorKind::Other, parse_result.unwrap_err()));
-        }
-
-        let file_data = parse_result.unwrap();
-
-        let doc = Document::parse(&file_data).expect("can't parse document");
-
-        // Snag SpriteSheet Data
-        let sprite_sheet_path = local_path_to_project_path(doc.descendants().find(|n| n.tag_name() == "tileset".into()).expect("can't find tileset").attribute("source").expect("can't find tileset source"), &load_context.asset_path().to_string());
-
-        // Snag Sprite Index
-        let sprite_idx = str::parse::<u32>(doc.descendants().find(|n| n.tag_name() == "object".into()).expect("can't find object").attribute("gid").expect("can't find gid")).expect("can't parse gid");
-
-        // Snag Properties
-
-        let mut properties = Vec::<ObjectProperty>::new();
-
-        let properties_elm = doc.descendants().find(|n| n.tag_name() == "properties".into());
-        match properties_elm {
-            Some(elm) => {
-                for property_elm in elm.children() {
-                    if !property_elm.is_element() { continue; }
-
-                    properties.push(object_property_from_property_element(property_elm));
-                }
+            let parse_result = String::from_utf8(bytes);
+            if parse_result.is_err() {
+                return Err(std::io::Error::new(ErrorKind::Other, parse_result.unwrap_err()));
             }
-            None => {}
-        }
 
-        return Ok(TemplateData {
-            sprite_sheet: load_context.load(sprite_sheet_path),
-            sprite_idx,
-            properties
+            let file_data = parse_result.unwrap();
+
+            let doc = Document::parse(&file_data).expect("can't parse document");
+
+            // Snag SpriteSheet Data
+            let sprite_sheet_path = local_path_to_project_path(doc.descendants().find(|n| n.tag_name() == "tileset".into()).expect("can't find tileset").attribute("source").expect("can't find tileset source"), &load_context.asset_path().to_string());
+
+            // Snag Sprite Index
+            let sprite_idx = str::parse::<u32>(doc.descendants().find(|n| n.tag_name() == "object".into()).expect("can't find object").attribute("gid").expect("can't find gid")).expect("can't parse gid");
+
+            // Snag Properties
+
+            let mut properties = Vec::<ObjectProperty>::new();
+
+            let properties_elm = doc.descendants().find(|n| n.tag_name() == "properties".into());
+            match properties_elm {
+                Some(elm) => {
+                    for property_elm in elm.children() {
+                        if !property_elm.is_element() { continue; }
+
+                        properties.push(object_property_from_property_element(property_elm));
+                    }
+                }
+                None => {}
+            }
+
+            return Ok(TemplateData {
+                sprite_sheet: load_context.load(sprite_sheet_path),
+                sprite_idx,
+                properties
+            });
         });
     }
 
