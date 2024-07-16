@@ -2,13 +2,18 @@
   description = "Rust shell flake";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=nixpkgs-unstable";
   };
 
   outputs = { self, nixpkgs }: 
   let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
+    #rustc_src = fetchTarball {
+    #  url = "https://static.rust-lang.org/dist/rustc-1.79.0-src.tar.xz";
+    #  sha256 = "1f2qzi421z914gy308s13spzwnhvbhlmyx9l23fhpyhx2y7548rs";
+    #};
+    #TODO: figure out how to compile this src and use it instead of pkgs.rustc
     packagelist = with pkgs; [
       #rust
       cargo 
