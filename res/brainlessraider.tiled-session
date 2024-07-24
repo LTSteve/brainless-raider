@@ -18,8 +18,8 @@
             "scale": 1.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 240,
-                "y": 239.99999999999997
+                "x": 239.66666666666666,
+                "y": 240
             }
         },
         "maps/tutorial/1.tmx": {
@@ -29,7 +29,7 @@
             "scale": 1,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 240,
+                "x": 239.5,
                 "y": 240
             }
         },
@@ -40,8 +40,8 @@
             "scale": 1.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 240,
-                "y": 239.99999999999997
+                "x": 239.66666666666666,
+                "y": 240
             }
         },
         "maps/tutorial/3.tmx": {
@@ -51,16 +51,16 @@
             "scale": 3,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 263.3333333333333,
-                "y": 253.99999999999997
+                "x": 239.83333333333331,
+                "y": 240
             }
         },
         "maps/tutorial/4.tmx": {
             "scale": 1.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 240,
-                "y": 239.99999999999997
+                "x": 239.66666666666666,
+                "y": 240
             }
         },
         "sprites.tsx": {
@@ -83,7 +83,7 @@
         "maps/tutorial/4.tmx"
     ],
     "project": "brainlessraider.tiled-project",
-    "property.type": "object",
+    "property.type": "string",
     "recentFiles": [
         "sprites.tsx",
         "maps/tutorial/0.tmx",

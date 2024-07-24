@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <template>
  <tileset firstgid="1" source="../sprites.tsx"/>
- <object type="Exit" gid="6" width="16" height="16"/>
+ <object type="Exit" gid="6" width="16" height="16">
+  <properties>
+   <property name="Components" value="Exit"/>
+  </properties>
+ </object>
 </template>

@@ -3,6 +3,7 @@
  <tileset firstgid="1" source="../sprites.tsx"/>
  <object type="Teleporter" gid="8" width="16" height="16">
   <properties>
+   <property name="Components" value="ClickableArea|Teleporter"/>
    <property name="enter_portal" type="object" value="8"/>
    <property name="exit_portal_1" type="object" value="10"/>
    <property name="exit_portal_2" type="object" value="11"/>

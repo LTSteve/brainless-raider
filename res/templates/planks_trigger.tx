@@ -3,6 +3,7 @@
  <tileset firstgid="1" source="../sprites.tsx"/>
  <object type="PlanksTrigger" gid="8" width="16" height="16">
   <properties>
+   <property name="Components" value="ClickableArea|PlanksTrigger"/>
    <property name="planks_1" type="object" value="12"/>
   </properties>
  </object>
