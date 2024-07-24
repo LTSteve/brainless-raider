@@ -1,5 +1,0 @@
-type = "struct" #struct|tuple|tag
-name = "Mover"
-[data]
-dir_x = 0
-dir_y = 0
