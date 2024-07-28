@@ -7,6 +7,8 @@ use std::io::Error;
 use std::io::ErrorKind;
 use std::u8;
 
+use crate::ObjectData;
+
 pub struct MapLoaderPlugin;
 impl Plugin for MapLoaderPlugin {
     fn build(&self, app: &mut App) {
@@ -55,18 +57,37 @@ pub struct TemplateData {
 }
 #[derive(Debug, Clone)]
 pub struct ObjectProperty {
-    pub value: ObjectPropertyValue,
+    pub value_b: bool,
+    pub value_c: Color,
+    pub value_f: f64,
+    pub value_s: String,
+    pub value_i: i64,
+    pub value_type: ObjectPropertyValueType,
     pub name: String,
 }
+impl Default for ObjectProperty {
+    fn default() -> Self {
+        Self {
+            value_b: false,
+            value_c: Color::WHITE,
+            value_f: 0.0,
+            value_s: String::new(),
+            value_i: 0,
+            value_type: ObjectPropertyValueType::Int,
+            name: String::new(),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
-pub enum ObjectPropertyValue {
-    Bool { value: bool },
-    Color { value: Color },
-    Float { value: f64 },
-    File { value: String },
-    Int { value: i64 },
-    Obj { value: u32 },
-    Str { value: String },
+pub enum ObjectPropertyValueType {
+    Bool,
+    Color,
+    Float,
+    File,
+    Int,
+    Obj,
+    Str,
 }
 
 // Map Loader
@@ -426,46 +447,56 @@ fn local_path_to_project_path(path: &str, local_path: &str) -> String {
 }
 
 fn object_property_from_property_element(property_elm: roxmltree::Node) -> ObjectProperty {
-    return ObjectProperty {
-        name: String::from(property_elm.attribute("name").expect("can't find name")),
-        value: match property_elm.attribute("type") {
-            Some("bool") => ObjectPropertyValue::Bool {
-                value: str::parse::<bool>(
-                    property_elm.attribute("value").expect("can't find value"),
-                )
+    return match property_elm.attribute("type") {
+        Some("bool") => ObjectProperty {
+            name: String::from(property_elm.attribute("name").expect("can't find name")),
+            value_b: str::parse::<bool>(property_elm.attribute("value").expect("can't find value"))
                 .expect("can't parse value bool"),
-            },
-            Some("color") => ObjectPropertyValue::Color {
-                value: Color::WHITE,
-            },
-            Some("float") => ObjectPropertyValue::Float {
-                value: str::parse::<f64>(
-                    property_elm.attribute("value").expect("can't find value"),
-                )
-                .expect("can't parse value f64"),
-            },
-            Some("file") => ObjectPropertyValue::File {
-                value: String::from(property_elm.attribute("value").expect("can't find value")),
-            },
-            Some("int") => ObjectPropertyValue::Int {
-                value: str::parse::<i64>(
-                    property_elm.attribute("value").expect("can't find value"),
-                )
-                .expect("can't parse value i64"),
-            },
-            Some("object") => ObjectPropertyValue::Obj {
-                value: str::parse::<u32>(
-                    property_elm.attribute("value").expect("can't find value"),
-                )
-                .expect("can't parse value u32"),
-            },
-            None => ObjectPropertyValue::Str {
-                value: String::from(property_elm.attribute("value").expect("can't find value")),
-            },
-            val => {
-                println!("{:?}", val);
-                todo!();
-            }
+            value_type: ObjectPropertyValueType::Bool,
+            ..Default::default()
         },
+        Some("color") => ObjectProperty {
+            name: String::from(property_elm.attribute("name").expect("can't find name")),
+            value_c: Color::WHITE,
+            value_type: ObjectPropertyValueType::Color,
+            ..Default::default()
+        },
+        Some("float") => ObjectProperty {
+            name: String::from(property_elm.attribute("name").expect("can't find name")),
+            value_f: str::parse::<f64>(property_elm.attribute("value").expect("can't find value"))
+                .expect("can't parse value f64"),
+            value_type: ObjectPropertyValueType::Float,
+            ..Default::default()
+        },
+        Some("file") => ObjectProperty {
+            name: String::from(property_elm.attribute("name").expect("can't find name")),
+            value_s: String::from(property_elm.attribute("value").expect("can't find value")),
+            value_type: ObjectPropertyValueType::File,
+            ..Default::default()
+        },
+        Some("int") => ObjectProperty {
+            name: String::from(property_elm.attribute("name").expect("can't find name")),
+            value_i: str::parse::<i64>(property_elm.attribute("value").expect("can't find value"))
+                .expect("can't parse value i64"),
+            value_type: ObjectPropertyValueType::Int,
+            ..Default::default()
+        },
+        Some("object") => ObjectProperty {
+            name: String::from(property_elm.attribute("name").expect("can't find name")),
+            value_i: str::parse::<i64>(property_elm.attribute("value").expect("can't find value"))
+                .expect("can't parse value u32"),
+            value_type: ObjectPropertyValueType::Obj,
+            ..Default::default()
+        },
+        None => ObjectProperty {
+            name: String::from(property_elm.attribute("name").expect("can't find name")),
+            value_s: String::from(property_elm.attribute("value").expect("can't find value")),
+            value_type: ObjectPropertyValueType::Str,
+            ..Default::default()
+        },
+        val => {
+            println!("{:?}", val);
+            todo!();
+        }
     };
 }

@@ -1,4 +1,4 @@
-use crate::map_loader::*;
+use crate::{map_loader::*, MAP_WIDTH_COORD};
 use bevy::asset::Handle;
 use bevy::prelude::*;
 
@@ -112,7 +112,7 @@ fn create_map_server(
                     continue;
                 }
                 let existing_property_idx = existing_property_index_option.unwrap();
-                properties[existing_property_idx].value = property.value.clone();
+                properties[existing_property_idx] = property.clone();
             }
 
             let template_sprite_sheet = spritesheet_assets.get(&template.sprite_sheet).unwrap();
@@ -219,4 +219,13 @@ fn while_loading(
     }
     println!("loaded!");
     next_state.set(MapLoadState::Done);
+}
+
+pub fn tile_data_from_coord(coord: IVec2, map_data: &MapData) -> u8 {
+    let x = coord.x as usize;
+    let y = MAP_WIDTH_COORD as usize - coord.y as usize - 1; // this is a little funky
+    return *map_data
+        .data
+        .get(x + y * MAP_WIDTH_COORD as usize)
+        .expect("tile data from coord oob!");
 }
