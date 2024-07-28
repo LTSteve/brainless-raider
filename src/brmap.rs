@@ -1,41 +1,42 @@
+use crate::map_loader::*;
 use bevy::asset::Handle;
 use bevy::prelude::*;
-use crate::map_loader::*;
 
-pub struct BRMapPlugin(pub Vec::<String>);
+pub struct BRMapPlugin(pub Vec<String>);
 impl Plugin for BRMapPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_plugins(MapLoaderPlugin)
+        app.add_plugins(MapLoaderPlugin)
             .insert_resource(MapPaths(self.0.clone()))
             .init_state::<MapLoadState>()
             .add_systems(Startup, start_loading_maps)
             .add_systems(OnExit(MapLoadState::Loading), create_map_server)
-            .add_systems(Update, (while_loading).run_if(in_state(MapLoadState::Loading)));
+            .add_systems(
+                Update,
+                (while_loading).run_if(in_state(MapLoadState::Loading)),
+            );
     }
 }
-
 
 // States
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
 pub enum MapLoadState {
     #[default]
     Loading,
-    Done
+    Done,
 }
 
 // Resources
 #[derive(Debug, Resource)]
-struct MapPaths(Vec::<String>);
+struct MapPaths(Vec<String>);
 
 #[derive(Debug, Resource)]
 struct MapHandleIds {
-    maps: Vec<Handle<RawMapData>>
+    maps: Vec<Handle<RawMapData>>,
 }
 
-#[derive(Debug,Resource)]
+#[derive(Debug, Resource)]
 pub struct MapServer {
-    pub tutorial_maps: Vec<MapData>
+    pub tutorial_maps: Vec<MapData>,
 }
 
 // Data
@@ -46,7 +47,7 @@ pub struct MapData {
     pub tile_width: u16,
     pub data: Vec<u8>,
     pub objects: Vec<ObjectData>,
-    pub sprite_sheet: TextureAtlasData
+    pub sprite_sheet: TextureAtlasData,
 }
 
 #[derive(Debug)]
@@ -57,7 +58,7 @@ pub struct ObjectData {
     pub sprite_idx: u32,
     pub x: u16,
     pub y: u16,
-    pub properties: Vec<ObjectProperty>
+    pub properties: Vec<ObjectProperty>,
 }
 
 #[derive(Debug)]
@@ -65,20 +66,20 @@ pub struct TextureAtlasData {
     pub tile_width: u8,
     pub columns: u32,
     pub sprite: Handle<Image>,
-    pub texture_atlas_layout: Handle<TextureAtlasLayout>
+    pub texture_atlas_layout: Handle<TextureAtlasLayout>,
 }
 
 // Systems
 fn start_loading_maps(
-    mut commands: Commands, 
+    mut commands: Commands,
     asset_server: Res<AssetServer>,
-    map_paths: Res<MapPaths>
+    map_paths: Res<MapPaths>,
 ) {
     let mut maps = Vec::<Handle<RawMapData>>::new();
     for path in map_paths.0.iter() {
         maps.push(asset_server.load(path));
     }
-    commands.insert_resource(MapHandleIds{maps});
+    commands.insert_resource(MapHandleIds { maps });
     commands.remove_resource::<MapPaths>();
 }
 
@@ -88,10 +89,10 @@ fn create_map_server(
     spritesheet_assets: Res<Assets<SpritesheetData>>,
     template_assets: Res<Assets<TemplateData>>,
     map_handles: Res<MapHandleIds>,
-    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
-    let mut map_server = MapServer{
-        tutorial_maps: Vec::<MapData>::new()
+    let mut map_server = MapServer {
+        tutorial_maps: Vec::<MapData>::new(),
     };
 
     for map_handle in map_handles.maps.iter() {
@@ -103,9 +104,9 @@ fn create_map_server(
             let mut properties = template.properties.clone();
 
             for property in &object_ref.properties {
-                let existing_property_index_option = &properties.iter().position(|prop| {
-                    property.name == prop.name
-                });
+                let existing_property_index_option = &properties
+                    .iter()
+                    .position(|prop| property.name == prop.name);
                 if existing_property_index_option.is_none() {
                     properties.push(property.clone());
                     continue;
@@ -126,9 +127,15 @@ fn create_map_server(
                     tile_width: template_sprite_sheet.tile_width,
                     columns: template_sprite_sheet.columns,
                     sprite: template_sprite_sheet.sprite.clone(),
-                    texture_atlas_layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(Vec2::splat(template_sprite_sheet.tile_width.into()), template_sprite_sheet.columns as usize, 1, None, None))
+                    texture_atlas_layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(
+                        Vec2::splat(template_sprite_sheet.tile_width.into()),
+                        template_sprite_sheet.columns as usize,
+                        1,
+                        None,
+                        None,
+                    )),
                 },
-                properties
+                properties,
             });
         }
 
@@ -144,8 +151,14 @@ fn create_map_server(
                 tile_width: map_sprite_sheet.tile_width,
                 columns: map_sprite_sheet.columns,
                 sprite: map_sprite_sheet.sprite.clone(),
-                texture_atlas_layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(Vec2::splat(map_sprite_sheet.tile_width.into()), map_sprite_sheet.columns as usize, 1, None, None))
-            }
+                texture_atlas_layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(
+                    Vec2::splat(map_sprite_sheet.tile_width.into()),
+                    map_sprite_sheet.columns as usize,
+                    1,
+                    None,
+                    None,
+                )),
+            },
         });
     }
 
@@ -158,53 +171,47 @@ fn while_loading(
     spritesheet_assets: Res<Assets<SpritesheetData>>,
     template_assets: Res<Assets<TemplateData>>,
     image_assets: Res<Assets<Image>>,
-    map_handles: Res<MapHandleIds>
+    map_handles: Res<MapHandleIds>,
 ) {
     for map_handle in map_handles.maps.iter() {
         match map_assets.get(map_handle) {
             None => {
                 println!("loading...");
                 return;
-            },
+            }
             Some(map_data) => {
                 match spritesheet_assets.get(&map_data.sprite_sheet) {
                     None => {
                         println!("loading...");
                         return;
-                    },
-                    Some(spritesheet) => {
-                        match image_assets.get(&spritesheet.sprite) {
-                            None => {
-                                println!("loading...");
-                                return;
-                            },
-                            _ => {}
-                        }
                     }
+                    Some(spritesheet) => match image_assets.get(&spritesheet.sprite) {
+                        None => {
+                            println!("loading...");
+                            return;
+                        }
+                        _ => {}
+                    },
                 }
                 for o_ref in &map_data.objects {
                     match template_assets.get(&o_ref.template) {
                         None => {
                             println!("loading...");
                             return;
-                        },
-                        Some(template) => {
-                            match spritesheet_assets.get(&template.sprite_sheet) {
+                        }
+                        Some(template) => match spritesheet_assets.get(&template.sprite_sheet) {
+                            None => {
+                                println!("loading...");
+                                return;
+                            }
+                            Some(spritesheet) => match image_assets.get(&spritesheet.sprite) {
                                 None => {
                                     println!("loading...");
                                     return;
-                                },
-                                Some(spritesheet) => {
-                                    match image_assets.get(&spritesheet.sprite) {
-                                        None => {
-                                            println!("loading...");
-                                            return;
-                                        },
-                                        _ => {}
-                                    }
                                 }
-                            }
-                        }
+                                _ => {}
+                            },
+                        },
                     }
                 }
             }

@@ -188,9 +188,12 @@ impl AssetLoader for MapLoader {
                     x: (str::parse::<f64>(object_elm.attribute("x").expect("can't find x"))
                         .expect("can't convert x into f64")
                         / f64::from(tile_width)) as u16,
-                    y: (str::parse::<f64>(object_elm.attribute("y").expect("can't find y"))
-                        .expect("can't convert y into f64")
-                        / f64::from(tile_width)) as u16,
+                    y: floop_y(
+                        str::parse::<f64>(object_elm.attribute("y").expect("can't find y"))
+                            .expect("can't convert y into f64"),
+                        tile_width,
+                        h,
+                    ),
                     properties,
                     obj_type: String::from(obj_type),
                 });
@@ -221,6 +224,11 @@ impl AssetLoader for MapLoader {
     fn extensions(&self) -> &[&str] {
         &["tmx"]
     }
+}
+
+fn floop_y(y: f64, tile_width: u16, map_height: usize) -> u16 {
+    let y = (y / (tile_width as f64)) as u16;
+    return map_height as u16 - y;
 }
 
 // Spritesheet Loader

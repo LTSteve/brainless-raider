@@ -3,11 +3,11 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "maps/tutorial/3.tmx",
+    "activeFile": "maps/tutorial/0.tmx",
     "expandedProjectPaths": [
-        "templates",
-        "maps",
         "maps/tutorial",
+        "maps",
+        "templates",
         "."
     ],
     "fileStates": {
@@ -83,14 +83,14 @@
         "maps/tutorial/4.tmx"
     ],
     "project": "brainlessraider.tiled-project",
-    "property.type": "string",
+    "property.type": "bool",
     "recentFiles": [
         "sprites.tsx",
-        "maps/tutorial/0.tmx",
-        "maps/tutorial/1.tmx",
-        "maps/tutorial/2.tmx",
         "maps/tutorial/4.tmx",
-        "maps/tutorial/3.tmx"
+        "maps/tutorial/3.tmx",
+        "maps/tutorial/2.tmx",
+        "maps/tutorial/1.tmx",
+        "maps/tutorial/0.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
