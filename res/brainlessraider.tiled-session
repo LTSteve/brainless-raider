@@ -6,8 +6,8 @@
     "activeFile": "maps/tutorial/0.tmx",
     "expandedProjectPaths": [
         "maps/tutorial",
-        "maps",
         "templates",
+        "maps",
         "."
     ],
     "fileStates": {
@@ -15,11 +15,11 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 1.5,
+            "scale": 5.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 239.66666666666666,
-                "y": 240
+                "x": 237.1818181818182,
+                "y": 239.1818181818182
             }
         },
         "maps/tutorial/1.tmx": {

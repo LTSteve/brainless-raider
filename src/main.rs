@@ -58,14 +58,14 @@ fn setup_scene(mut commands: Commands, map_server: Res<MapServer>) {
         }
 
         let x = idx % map.width;
-        let y = idx / map.width;
+        let y = map.width - idx / map.width - 1;
 
         commands.spawn((
             SpriteBundle {
                 transform: Transform {
                     translation: Vec3 {
                         x: coord_to_pos(x as f32),
-                        y: -coord_to_pos(y as f32),
+                        y: coord_to_pos(y as f32),
                         z: FLOOR_Z,
                     },
                     scale: Vec3::splat(SCALE),
@@ -88,7 +88,7 @@ fn setup_scene(mut commands: Commands, map_server: Res<MapServer>) {
             transform: Transform {
                 translation: Vec3 {
                     x: coord_to_pos(obj.x as f32),
-                    y: -coord_to_pos(obj.y as f32 - 1.0),
+                    y: coord_to_pos(obj.y as f32),
                     z: ENTITY_Z,
                 },
                 scale: Vec3::splat(SCALE),

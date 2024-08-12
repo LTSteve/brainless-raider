@@ -7,8 +7,6 @@ use std::io::Error;
 use std::io::ErrorKind;
 use std::u8;
 
-use crate::ObjectData;
-
 pub struct MapLoaderPlugin;
 impl Plugin for MapLoaderPlugin {
     fn build(&self, app: &mut App) {
@@ -208,7 +206,8 @@ impl AssetLoader for MapLoader {
                     )),
                     x: (str::parse::<f64>(object_elm.attribute("x").expect("can't find x"))
                         .expect("can't convert x into f64")
-                        / f64::from(tile_width)) as u16,
+                        / f64::from(tile_width))
+                    .round() as u16,
                     y: floop_y(
                         str::parse::<f64>(object_elm.attribute("y").expect("can't find y"))
                             .expect("can't convert y into f64"),
@@ -248,7 +247,7 @@ impl AssetLoader for MapLoader {
 }
 
 fn floop_y(y: f64, tile_width: u16, map_height: usize) -> u16 {
-    let y = (y / (tile_width as f64)) as u16;
+    let y = (y / (tile_width as f64)).round() as u16;
     return map_height as u16 - y;
 }
 
