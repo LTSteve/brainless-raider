@@ -1,10 +1,12 @@
 mod brmap;
+mod collision;
 mod hydrate_components;
 mod map_loader;
 mod movement;
 
 use bevy::prelude::*;
 use brmap::*;
+use collision::*;
 use hydrate_components::*;
 use movement::*;
 
@@ -36,9 +38,13 @@ fn main() {
                 String::from("maps/tutorial/3.tmx"),
                 String::from("maps/tutorial/4.tmx"),
             ]),
+            CollisionPlugin,
         ))
         .add_systems(OnEnter(MapLoadState::Done), setup_scene)
-        .add_systems(Update, (move_movers).run_if(in_state(MapLoadState::Done)))
+        .add_systems(
+            Update,
+            (move_movers, update_colliders).run_if(in_state(MapLoadState::Done)),
+        )
         .run();
 }
 
@@ -81,7 +87,9 @@ fn setup_scene(mut commands: Commands, map_server: Res<MapServer>) {
         ));
     }
 
-    let entity_hydrator = &ComponentHydrators::new().register_hydrator("Mover", hydrate_mover);
+    let entity_hydrator = &ComponentHydrators::new()
+        .register_hydrator("Mover", hydrate_mover)
+        .register_hydrator("Collider", hydrate_collider);
 
     for obj in map.objects.iter() {
         let sprite_bundle = SpriteBundle {
