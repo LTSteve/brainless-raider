@@ -38,7 +38,9 @@ fn main() {
                 String::from("maps/tutorial/3.tmx"),
                 String::from("maps/tutorial/4.tmx"),
             ]),
-            CollisionPlugin,
+            CollisionPlugin {
+                debug_collisions: true,
+            },
         ))
         .add_systems(OnEnter(MapLoadState::Done), setup_scene)
         .add_systems(Update, move_movers.run_if(in_state(MapLoadState::Done)))

@@ -4,19 +4,17 @@ use bevy::{ecs::system::EntityCommands, prelude::*};
 // Constants
 
 // Plugin
-pub struct CollisionPlugin;
+pub struct CollisionPlugin {
+    pub debug_collisions: bool,
+}
 impl Plugin for CollisionPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<CollisionEnterEvent>()
             .add_event::<CollisionExitEvent>()
-            .add_systems(
-                Update,
-                (
-                    update_colliders,
-                    debug_collision_exit,
-                    debug_collision_enter,
-                ),
-            );
+            .add_systems(Update, update_colliders);
+        if self.debug_collisions {
+            app.add_systems(Update, (debug_collision_exit, debug_collision_enter));
+        }
     }
 }
 
