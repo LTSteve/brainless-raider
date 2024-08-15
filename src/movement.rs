@@ -57,12 +57,12 @@ pub fn move_movers(
         let destination = Vec3::new(
             coord_to_pos(mover.target.x as f32),
             coord_to_pos(mover.target.y as f32),
-            ENTITY_Z,
+            transform.translation.z,
         );
         let previous_position = Vec3::new(
             coord_to_pos(mover.coord.x as f32),
             coord_to_pos(mover.coord.y as f32),
-            ENTITY_Z,
+            transform.translation.z,
         );
         transform.translation = cerp_v3(previous_position, destination, mover.move_percent);
 

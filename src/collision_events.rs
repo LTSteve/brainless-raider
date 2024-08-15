@@ -5,6 +5,11 @@ use bevy::{ecs::system::EntityCommands, prelude::*};
 
 // Constants
 
+pub const GOBLINOID_DEATH_OFFSET: f32 = 1.0; // TODO: this is odd
+pub const GOBLINOID_DEATH_SCALE: f32 = 0.8;
+pub const GOBLINOID_DEATH_COLOR: Color = Color::GRAY;
+pub const GOBLINOID_DEATH_ROTATION: f32 = 90.0;
+
 // Plugin
 pub struct CollisionEventsPlugin;
 impl Plugin for CollisionEventsPlugin {
@@ -18,23 +23,19 @@ impl Plugin for CollisionEventsPlugin {
 pub fn on_adventurer_goblinoid_collide(
     mut commands: Commands,
     mut ev_collision_enter: EventReader<CollisionEnterEvent>,
-    collision_q: Query<(Entity, &Collider)>,
-    mut transform_q: Query<(&mut Transform, &mut Sprite)>,
+    adventurer_q: Query<Entity, With<Adventurer>>,
+    mut goblinoid_q: Query<(Entity, &mut Transform, &mut Sprite), With<Goblinoid>>,
 ) {
     for e in ev_collision_enter.read() {
-        if let [Ok(bundle_1), Ok(bundle_2)] = [collision_q.get(e.0), collision_q.get(e.1)] {
-            if let [Some(goblinoid_entity), Some(_)] =
-                collision_between("Goblinoid", "Adventurer", bundle_1, bundle_2)
-            {
-                commands.entity(goblinoid_entity).remove::<Mover>();
-                commands.entity(goblinoid_entity).remove::<Collider>();
-                if let Ok((mut transform, mut sprite)) = transform_q.get_mut(goblinoid_entity) {
-                    transform.rotate_z(deg_to_rad(90.0));
-                    transform.scale = transform.scale * 0.8;
-                    transform.translation.z -= 3.0; // TODO: this is odd
-                    sprite.color = Color::GRAY;
-                }
-            }
+        if let (Ok(_), Ok((goblinoid_entity, mut transform, mut sprite))) =
+            (adventurer_q.get(e.0), goblinoid_q.get_mut(e.1))
+        {
+            commands.entity(goblinoid_entity).remove::<Mover>();
+            commands.entity(goblinoid_entity).remove::<Collider>();
+            transform.rotate_z(deg_to_rad(GOBLINOID_DEATH_ROTATION));
+            transform.scale = transform.scale * GOBLINOID_DEATH_SCALE;
+            transform.translation.z -= GOBLINOID_DEATH_OFFSET;
+            sprite.color = GOBLINOID_DEATH_COLOR;
         }
     }
 }
@@ -42,29 +43,4 @@ pub fn on_adventurer_goblinoid_collide(
 // Helpers
 fn deg_to_rad(deg: f32) -> f32 {
     return deg * PI / 180.0;
-}
-
-fn collision_between(
-    name_a: &str,
-    name_b: &str,
-    bundle_1: (Entity, &Collider),
-    bundle_2: (Entity, &Collider),
-) -> [Option<Entity>; 2] {
-    let mut entity_a: Option<Entity> = None;
-    let mut entity_b: Option<Entity> = None;
-
-    if bundle_1.1.name == name_a {
-        entity_a = Some(bundle_1.0);
-    }
-    if bundle_2.1.name == name_a {
-        entity_a = Some(bundle_2.0);
-    }
-    if bundle_1.1.name == name_b {
-        entity_b = Some(bundle_1.0);
-    }
-    if bundle_2.1.name == name_b {
-        entity_b = Some(bundle_2.0);
-    }
-
-    return [entity_a, entity_b];
 }

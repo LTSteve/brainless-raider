@@ -3,7 +3,7 @@
  <tileset firstgid="1" source="../sprites.tsx"/>
  <object type="Goblinoid" gid="4" width="16" height="16">
   <properties>
-   <property name="Components" value="Mover|Collider"/>
+   <property name="Components" value="Mover|Collider|Goblinoid"/>
    <property name="clockwise" type="bool" value="false"/>
    <property name="collider_radius" type="float" value="4"/>
    <property name="dir_x" type="int" value="1"/>

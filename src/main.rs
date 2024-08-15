@@ -5,7 +5,7 @@ mod hydrate_components;
 mod map_loader;
 mod movement;
 
-use bevy::prelude::*;
+use bevy::{ecs::system::EntityCommands, prelude::*};
 use brmap::*;
 use collision::*;
 use collision_events::*;
@@ -52,6 +52,11 @@ fn main() {
 
 // Components
 
+#[derive(Default, Component)]
+pub struct Goblinoid;
+#[derive(Default, Component)]
+pub struct Adventurer;
+
 // Systems
 
 fn setup_scene(mut commands: Commands, map_server: Res<MapServer>) {
@@ -91,7 +96,9 @@ fn setup_scene(mut commands: Commands, map_server: Res<MapServer>) {
 
     let entity_hydrator = &ComponentHydrators::new()
         .register_hydrator("Mover", hydrate_mover)
-        .register_hydrator("Collider", hydrate_collider);
+        .register_hydrator("Collider", hydrate_collider)
+        .register_tag::<Goblinoid>("Goblinoid")
+        .register_tag::<Adventurer>("Adventurer");
 
     for obj in map.objects.iter() {
         let sprite_bundle = SpriteBundle {
