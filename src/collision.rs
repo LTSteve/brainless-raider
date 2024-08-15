@@ -21,10 +21,10 @@ impl Plugin for CollisionPlugin {
 // Events
 
 #[derive(Event)]
-pub struct CollisionEnterEvent(Entity, Entity);
+pub struct CollisionEnterEvent(pub Entity, pub Entity);
 
 #[derive(Event)]
-pub struct CollisionExitEvent(Entity, Entity);
+pub struct CollisionExitEvent(pub Entity, pub Entity);
 
 // Components
 

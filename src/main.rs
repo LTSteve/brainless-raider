@@ -1,5 +1,6 @@
 mod brmap;
 mod collision;
+mod collision_events;
 mod hydrate_components;
 mod map_loader;
 mod movement;
@@ -7,11 +8,12 @@ mod movement;
 use bevy::prelude::*;
 use brmap::*;
 use collision::*;
+use collision_events::*;
 use hydrate_components::*;
 use movement::*;
 
 pub const FLOOR_Z: f32 = 0.0;
-pub const ENTITY_Z: f32 = 1.0;
+pub const ENTITY_Z: f32 = 10.0;
 pub const SCALE: f32 = 4.0;
 
 pub const TILE_WIDTH: f32 = 16.0;
@@ -41,6 +43,7 @@ fn main() {
             CollisionPlugin {
                 debug_collisions: true,
             },
+            CollisionEventsPlugin,
         ))
         .add_systems(OnEnter(MapLoadState::Done), setup_scene)
         .add_systems(Update, move_movers.run_if(in_state(MapLoadState::Done)))
