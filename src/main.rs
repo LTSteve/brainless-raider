@@ -41,10 +41,7 @@ fn main() {
             CollisionPlugin,
         ))
         .add_systems(OnEnter(MapLoadState::Done), setup_scene)
-        .add_systems(
-            Update,
-            (move_movers, update_colliders).run_if(in_state(MapLoadState::Done)),
-        )
+        .add_systems(Update, move_movers.run_if(in_state(MapLoadState::Done)))
         .run();
 }
 
