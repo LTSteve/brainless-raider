@@ -3,6 +3,8 @@
  <tileset firstgid="1" source="../sprites.tsx"/>
  <object type="Adventurer" gid="3" width="16" height="16">
   <properties>
+   <property name="Components" value="Mover"/>
+   <property name="clockwise" type="bool" value="true"/>
    <property name="dir_x" type="int" value="1"/>
    <property name="dir_y" type="int" value="0"/>
   </properties>

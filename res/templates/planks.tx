@@ -3,6 +3,7 @@
  <tileset firstgid="1" source="../sprites.tsx"/>
  <object type="Planks" gid="2" width="16" height="16">
   <properties>
+   <property name="Components" value="Planks"/>
    <property name="active" type="bool" value="false"/>
   </properties>
  </object>

@@ -3,6 +3,7 @@
  <tileset firstgid="1" source="../sprites.tsx"/>
  <object type="PortalExit" gid="7" width="16" height="16">
   <properties>
+   <property name="Components" value="ExitPortal"/>
    <property name="exit_dir_x" type="int" value="-1"/>
    <property name="exit_dir_y" type="int" value="0"/>
   </properties>

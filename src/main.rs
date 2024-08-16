@@ -1,56 +1,74 @@
+mod brmap;
+mod hydrate_components;
 mod map_loader;
+mod movement;
 
-use map_loader::*;
 use bevy::prelude::*;
+use brmap::*;
+use hydrate_components::*;
+use movement::*;
+
+pub const FLOOR_Z: f32 = 0.0;
+pub const ENTITY_Z: f32 = 1.0;
+pub const SCALE: f32 = 4.0;
+
+pub const TILE_WIDTH: f32 = 16.0;
+pub const HALF_TILE_WIDTH: f32 = 8.0;
+pub const MAP_WIDTH_COORD: f32 = 30.0;
+pub const HALF_MAP_WIDTH_COORD: f32 = 15.0;
+pub const MAP_WIDTH: f32 = MAP_WIDTH_COORD * TILE_WIDTH;
+pub const HALF_MAP_WIDTH: f32 = HALF_MAP_WIDTH_COORD * TILE_WIDTH;
 
 fn main() {
     App::new()
         .add_plugins((
-            DefaultPlugins.set(AssetPlugin {
-                mode: AssetMode::Unprocessed,
-                file_path: "res".to_string(),
-                ..default()
-            }).set(ImagePlugin::default_nearest()),
-            MapLoaderPlugin(vec![
+            DefaultPlugins
+                .set(AssetPlugin {
+                    mode: AssetMode::Unprocessed,
+                    file_path: "res".to_string(),
+                    ..default()
+                })
+                .set(ImagePlugin::default_nearest()),
+            BRMapPlugin(vec![
                 String::from("maps/tutorial/0.tmx"),
                 String::from("maps/tutorial/1.tmx"),
                 String::from("maps/tutorial/2.tmx"),
                 String::from("maps/tutorial/3.tmx"),
-                String::from("maps/tutorial/4.tmx")
+                String::from("maps/tutorial/4.tmx"),
             ]),
         ))
         .add_systems(OnEnter(MapLoadState::Done), setup_scene)
+        .add_systems(Update, (move_movers).run_if(in_state(MapLoadState::Done)))
         .run();
 }
 
-fn setup_scene(
-    mut commands: Commands,
-    map_server: Res<MapServer>
-){
+// Components
+
+// Systems
+
+fn setup_scene(mut commands: Commands, map_server: Res<MapServer>) {
     let map = &map_server.tutorial_maps[0];
     let texture = &map.sprite_sheet.sprite;
-
-    let half_tile_width = map.tile_width as f32 / 2.0;
-    let half_map_width = map.width as f32 * half_tile_width;
-
-    let scale: f32 = 4.0;
 
     commands.spawn(Camera2dBundle::default());
 
     for idx in 0..map.data.len() {
-        if map.data[idx] == 0 { continue; }
+        if map.data[idx] == 0 {
+            continue;
+        }
 
         let x = idx % map.width;
-        let y = idx / map.width;
-
-        let x_pos = (x as f32 * map.tile_width as f32 - half_map_width + half_tile_width) * scale;
-        let y_pos = (y as f32 * map.tile_width as f32 - half_map_width + half_tile_width) * scale;
+        let y = map.width - idx / map.width - 1;
 
         commands.spawn((
             SpriteBundle {
                 transform: Transform {
-                    translation: Vec3{x:x_pos, y:y_pos, z:0.0},
-                    scale: Vec3::splat(scale),
+                    translation: Vec3 {
+                        x: coord_to_pos(x as f32),
+                        y: coord_to_pos(y as f32),
+                        z: FLOOR_Z,
+                    },
+                    scale: Vec3::splat(SCALE),
                     ..default()
                 },
                 texture: texture.clone(),
@@ -58,8 +76,60 @@ fn setup_scene(
             },
             TextureAtlas {
                 layout: map.sprite_sheet.texture_atlas_layout.clone(),
-                index: (map.data[idx] as usize) - 1
-            }
+                index: (map.data[idx] as usize) - 1,
+            },
         ));
     }
+
+    let entity_hydrator = &ComponentHydrators::new().register_hydrator("Mover", hydrate_mover);
+
+    for obj in map.objects.iter() {
+        let sprite_bundle = SpriteBundle {
+            transform: Transform {
+                translation: Vec3 {
+                    x: coord_to_pos(obj.x as f32),
+                    y: coord_to_pos(obj.y as f32),
+                    z: ENTITY_Z,
+                },
+                scale: Vec3::splat(SCALE),
+                ..default()
+            },
+            texture: texture.clone(),
+            ..default()
+        };
+        let texture_atlas = TextureAtlas {
+            layout: obj.sprite_sheet.texture_atlas_layout.clone(),
+            index: obj.sprite_idx as usize - 1,
+        };
+
+        let mut entity_commands = commands.spawn((sprite_bundle, texture_atlas));
+
+        let components_property = obj.properties.iter().find(|prop| prop.name == "Components");
+
+        if let Some(components_property) = components_property {
+            for component_name in String::from(&components_property.value_s).split("|") {
+                entity_hydrator.hydrate_entity(&mut entity_commands, &obj, component_name)
+            }
+        }
+    }
+}
+
+// Helpers
+
+fn clamp(val: f32, min: f32, max: f32) -> f32 {
+    if val > max {
+        return max;
+    }
+    if val < min {
+        return min;
+    }
+    return val;
+}
+
+fn coord_to_pos(val: f32) -> f32 {
+    return (val * TILE_WIDTH - HALF_MAP_WIDTH + HALF_TILE_WIDTH) * SCALE;
+}
+
+fn pos_to_coord(val: f32) -> f32 {
+    return ((val / SCALE) + HALF_MAP_WIDTH - HALF_TILE_WIDTH) / TILE_WIDTH;
 }
