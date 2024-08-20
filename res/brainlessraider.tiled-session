@@ -5,10 +5,10 @@
     },
     "activeFile": "maps/tutorial/0.tmx",
     "expandedProjectPaths": [
-        "templates",
         "maps",
         ".",
-        "maps/tutorial"
+        "maps/tutorial",
+        "templates"
     ],
     "fileStates": {
         "maps/tutorial/0.tmx": {
@@ -18,8 +18,8 @@
             "scale": 5.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 247.90909090909093,
-                "y": 240
+                "x": 237.1818181818182,
+                "y": 239.1818181818182
             }
         },
         "maps/tutorial/1.tmx": {
