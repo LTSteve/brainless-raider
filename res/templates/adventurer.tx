@@ -8,6 +8,7 @@
    <property name="collider_radius" type="float" value="4"/>
    <property name="dir_x" type="int" value="1"/>
    <property name="dir_y" type="int" value="0"/>
+   <property name="z" type="float" value="10"/>
   </properties>
  </object>
 </template>

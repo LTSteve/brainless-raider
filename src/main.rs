@@ -13,7 +13,7 @@ use hydrate_components::*;
 use movement::*;
 
 pub const FLOOR_Z: f32 = 0.0;
-pub const ENTITY_Z: f32 = 10.0;
+pub const ENTITY_Z_OFFSET: f32 = 10.0;
 pub const SCALE: f32 = 4.0;
 
 pub const TILE_WIDTH: f32 = 16.0;
@@ -106,7 +106,7 @@ fn setup_scene(mut commands: Commands, map_server: Res<MapServer>) {
                 translation: Vec3 {
                     x: coord_to_pos(obj.x as f32),
                     y: coord_to_pos(obj.y as f32),
-                    z: ENTITY_Z,
+                    z: obj.z + ENTITY_Z_OFFSET,
                 },
                 scale: Vec3::splat(SCALE),
                 ..default()

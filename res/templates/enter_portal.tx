@@ -6,6 +6,7 @@
    <property name="Components" value="EnterPortal|Collider"/>
    <property name="collider_radius" type="float" value="4"/>
    <property name="exit_portal" type="object" value="0"/>
+   <property name="z" type="float" value="5"/>
   </properties>
  </object>
 </template>

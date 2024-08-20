@@ -5,6 +5,7 @@
   <properties>
    <property name="Components" value="ClickableArea|PlanksTrigger"/>
    <property name="planks_1" type="object" value="12"/>
+   <property name="z" type="float" value="5"/>
   </properties>
  </object>
 </template>

@@ -5,6 +5,7 @@
   <properties>
    <property name="Components" value="Pit|Collider"/>
    <property name="collider_radius" type="float" value="4"/>
+   <property name="z" type="float" value="1"/>
   </properties>
  </object>
 </template>

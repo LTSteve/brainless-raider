@@ -1,11 +1,11 @@
 use std::f32::consts::PI;
 
 use crate::*;
-use bevy::{ecs::system::EntityCommands, prelude::*};
+use bevy::prelude::*;
 
 // Constants
 
-pub const GOBLINOID_DEATH_OFFSET: f32 = 1.0;
+pub const GOBLINOID_DEATH_OFFSET: f32 = 2.0; // Under treasure
 pub const GOBLINOID_DEATH_SCALE: f32 = 0.8;
 pub const GOBLINOID_DEATH_COLOR: Color = Color::GRAY;
 pub const GOBLINOID_DEATH_ROTATION: f32 = 90.0;
