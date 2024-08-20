@@ -25,6 +25,7 @@ pub fn on_adventurer_goblinoid_collide(
     mut ev_collision_enter: EventReader<CollisionEnterEvent>,
     adventurer_q: Query<Entity, With<Adventurer>>,
     mut goblinoid_q: Query<(Entity, &mut Transform, &mut Sprite), With<Goblinoid>>,
+    audio_server: Option<Res<AudioServer>>,
 ) {
     for e in ev_collision_enter.read() {
         if let (Ok(_), Ok((goblinoid_entity, mut transform, mut sprite))) =
@@ -36,6 +37,9 @@ pub fn on_adventurer_goblinoid_collide(
             transform.scale = transform.scale * GOBLINOID_DEATH_SCALE;
             transform.translation.z -= GOBLINOID_DEATH_OFFSET;
             sprite.color = GOBLINOID_DEATH_COLOR;
+            if let Some(audio_server) = &audio_server {
+                commands.spawn(audio_server.kill.create_one_shot());
+            }
         }
     }
 }

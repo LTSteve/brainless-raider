@@ -1,3 +1,4 @@
+mod audio_server;
 mod brmap;
 mod collision;
 mod collision_events;
@@ -5,7 +6,8 @@ mod hydrate_components;
 mod map_loader;
 mod movement;
 
-use bevy::{ecs::system::EntityCommands, prelude::*};
+use audio_server::*;
+use bevy::prelude::*;
 use brmap::*;
 use collision::*;
 use collision_events::*;
@@ -44,6 +46,7 @@ fn main() {
                 debug_collisions: true,
             },
             CollisionEventsPlugin,
+            AudioServerPlugin,
         ))
         .add_systems(OnEnter(MapLoadState::Done), setup_scene)
         .add_systems(Update, move_movers.run_if(in_state(MapLoadState::Done)))
