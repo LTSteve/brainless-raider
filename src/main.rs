@@ -59,6 +59,8 @@ fn main() {
 pub struct Goblinoid;
 #[derive(Default, Component)]
 pub struct Adventurer;
+#[derive(Default, Component)]
+pub struct Treasure;
 
 // Systems
 
@@ -101,7 +103,8 @@ fn setup_scene(mut commands: Commands, map_server: Res<MapServer>) {
         .register_hydrator("Mover", hydrate_mover)
         .register_hydrator("Collider", hydrate_collider)
         .register_tag::<Goblinoid>("Goblinoid")
-        .register_tag::<Adventurer>("Adventurer");
+        .register_tag::<Adventurer>("Adventurer")
+        .register_tag::<Treasure>("Treasure");
 
     for obj in map.objects.iter() {
         let sprite_bundle = SpriteBundle {

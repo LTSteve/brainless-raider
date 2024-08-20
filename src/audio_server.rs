@@ -49,7 +49,7 @@ impl PlayableAudioSource {
         AudioBundle {
             source: self.0.clone(),
             settings: PlaybackSettings {
-                mode: bevy::audio::PlaybackMode::Once,
+                mode: bevy::audio::PlaybackMode::Despawn, // hmm... TODO: can we save these audio bundles and re-use them rather than spawn/despawn
                 ..default()
             },
         }
