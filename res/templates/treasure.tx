@@ -3,7 +3,9 @@
  <tileset firstgid="1" source="../sprites.tsx"/>
  <object type="Treasure" gid="9" width="16" height="16">
   <properties>
-   <property name="Components" value="Treasure"/>
+   <property name="Components" value="Treasure|Collider"/>
+   <property name="collider_radius" type="float" value="4"/>
+   <property name="z" type="float" value="6"/>
   </properties>
  </object>
 </template>

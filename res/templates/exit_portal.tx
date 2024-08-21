@@ -6,6 +6,7 @@
    <property name="Components" value="ExitPortal"/>
    <property name="exit_dir_x" type="int" value="-1"/>
    <property name="exit_dir_y" type="int" value="0"/>
+   <property name="z" type="float" value="5"/>
   </properties>
  </object>
 </template>

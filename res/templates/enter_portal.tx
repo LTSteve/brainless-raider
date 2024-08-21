@@ -3,8 +3,10 @@
  <tileset firstgid="1" source="../sprites.tsx"/>
  <object type="PortalEntrance" gid="7" width="16" height="16">
   <properties>
-   <property name="Components" value="EnterPortal"/>
+   <property name="Components" value="EnterPortal|Collider"/>
+   <property name="collider_radius" type="float" value="4"/>
    <property name="exit_portal" type="object" value="0"/>
+   <property name="z" type="float" value="5"/>
   </properties>
  </object>
 </template>

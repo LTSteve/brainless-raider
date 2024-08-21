@@ -3,8 +3,10 @@
  <tileset firstgid="1" source="../sprites.tsx"/>
  <object type="Planks" gid="2" width="16" height="16">
   <properties>
-   <property name="Components" value="Planks"/>
+   <property name="Components" value="Planks|Collider"/>
    <property name="active" type="bool" value="false"/>
+   <property name="collider_radius" type="float" value="6"/>
+   <property name="z" type="float" value="3"/>
   </properties>
  </object>
 </template>

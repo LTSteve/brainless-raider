@@ -1,15 +1,23 @@
+mod audio_server;
 mod brmap;
+mod collision;
+mod collision_events;
 mod hydrate_components;
 mod map_loader;
 mod movement;
+mod treasure_train;
 
+use audio_server::*;
 use bevy::prelude::*;
 use brmap::*;
+use collision::*;
+use collision_events::*;
 use hydrate_components::*;
 use movement::*;
+use treasure_train::*;
 
 pub const FLOOR_Z: f32 = 0.0;
-pub const ENTITY_Z: f32 = 1.0;
+pub const ENTITY_Z_OFFSET: f32 = 10.0;
 pub const SCALE: f32 = 4.0;
 
 pub const TILE_WIDTH: f32 = 16.0;
@@ -36,13 +44,24 @@ fn main() {
                 String::from("maps/tutorial/3.tmx"),
                 String::from("maps/tutorial/4.tmx"),
             ]),
+            CollisionPlugin {
+                debug_collisions: true,
+            },
+            CollisionEventsPlugin,
+            AudioServerPlugin,
+            TreasureTrainPlugin,
         ))
         .add_systems(OnEnter(MapLoadState::Done), setup_scene)
-        .add_systems(Update, (move_movers).run_if(in_state(MapLoadState::Done)))
+        .add_systems(Update, move_movers.run_if(in_state(MapLoadState::Done)))
         .run();
 }
 
 // Components
+
+#[derive(Default, Component)]
+pub struct Goblinoid;
+#[derive(Default, Component)]
+pub struct Adventurer;
 
 // Systems
 
@@ -81,7 +100,12 @@ fn setup_scene(mut commands: Commands, map_server: Res<MapServer>) {
         ));
     }
 
-    let entity_hydrator = &ComponentHydrators::new().register_hydrator("Mover", hydrate_mover);
+    let entity_hydrator = &ComponentHydrators::new()
+        .register_hydrator("Mover", hydrate_mover)
+        .register_hydrator("Collider", hydrate_collider)
+        .register_tag::<Goblinoid>("Goblinoid")
+        .register_tag::<Adventurer>("Adventurer")
+        .register_tag::<Treasure>("Treasure");
 
     for obj in map.objects.iter() {
         let sprite_bundle = SpriteBundle {
@@ -89,7 +113,7 @@ fn setup_scene(mut commands: Commands, map_server: Res<MapServer>) {
                 translation: Vec3 {
                     x: coord_to_pos(obj.x as f32),
                     y: coord_to_pos(obj.y as f32),
-                    z: ENTITY_Z,
+                    z: obj.z + ENTITY_Z_OFFSET,
                 },
                 scale: Vec3::splat(SCALE),
                 ..default()
@@ -126,7 +150,7 @@ fn clamp(val: f32, min: f32, max: f32) -> f32 {
     return val;
 }
 
-fn coord_to_pos(val: f32) -> f32 {
+pub fn coord_to_pos(val: f32) -> f32 {
     return (val * TILE_WIDTH - HALF_MAP_WIDTH + HALF_TILE_WIDTH) * SCALE;
 }
 

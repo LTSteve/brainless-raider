@@ -5,10 +5,10 @@
     },
     "activeFile": "maps/tutorial/0.tmx",
     "expandedProjectPaths": [
-        "maps/tutorial",
-        "templates",
         "maps",
-        "."
+        ".",
+        "maps/tutorial",
+        "templates"
     ],
     "fileStates": {
         "maps/tutorial/0.tmx": {
@@ -18,8 +18,8 @@
             "scale": 5.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 237.1818181818182,
-                "y": 239.1818181818182
+                "x": 247.90909090909093,
+                "y": 240
             }
         },
         "maps/tutorial/1.tmx": {
@@ -83,7 +83,7 @@
         "maps/tutorial/4.tmx"
     ],
     "project": "brainlessraider.tiled-project",
-    "property.type": "bool",
+    "property.type": "float",
     "recentFiles": [
         "sprites.tsx",
         "maps/tutorial/4.tmx",

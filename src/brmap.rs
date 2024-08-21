@@ -58,6 +58,7 @@ pub struct ObjectData {
     pub sprite_idx: u32,
     pub x: u16,
     pub y: u16,
+    pub z: f32,
     pub properties: Vec<ObjectProperty>,
 }
 
@@ -115,6 +116,12 @@ fn create_map_server(
                 properties[existing_property_idx] = property.clone();
             }
 
+            let mut z: f32 = 0.0;
+
+            if let Some(z_property) = properties.iter().find(|p| p.name == "z") {
+                z = z_property.value_f as f32;
+            }
+
             let template_sprite_sheet = spritesheet_assets.get(&template.sprite_sheet).unwrap();
 
             objects.push(ObjectData {
@@ -122,6 +129,7 @@ fn create_map_server(
                 id: object_ref.id,
                 x: object_ref.x,
                 y: object_ref.y,
+                z,
                 sprite_idx: template.sprite_idx,
                 sprite_sheet: TextureAtlasData {
                     tile_width: template_sprite_sheet.tile_width,

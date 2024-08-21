@@ -1,4 +1,4 @@
-use bevy::{ecs::system::EntityCommands, prelude::Color};
+use bevy::{ecs::system::EntityCommands, prelude::*};
 use bevy_utils::HashMap;
 
 use crate::ObjectData;
@@ -24,6 +24,14 @@ impl ComponentHydrators {
         return self;
     }
 
+    pub fn register_tag<T>(mut self, component_name: &'static str) -> Self
+    where
+        T: Default + Component,
+    {
+        self.hydrators.insert(component_name, hydrate_tag::<T>);
+        return self;
+    }
+
     pub fn hydrate_entity(
         &self,
         entity_commands: &mut EntityCommands,
@@ -42,6 +50,13 @@ impl ComponentHydrators {
             }
         }
     }
+}
+
+fn hydrate_tag<T>(entity_commands: &mut EntityCommands, _: &ObjectData)
+where
+    T: Default + Component,
+{
+    entity_commands.insert(T::default());
 }
 
 pub fn get_property_value_from_object_or_default_s(
