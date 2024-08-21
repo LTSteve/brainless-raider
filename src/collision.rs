@@ -35,6 +35,9 @@ pub struct Collider {
     pub colliding_with: Vec<Entity>,
 }
 
+#[derive(Debug, Component)]
+pub struct ColliderDisabled;
+
 pub fn hydrate_collider(entity_commands: &mut EntityCommands, object_data: &ObjectData) {
     let radius = get_property_value_from_object_or_default_f(object_data, "collider_radius", 4.0);
 
@@ -50,7 +53,7 @@ pub fn hydrate_collider(entity_commands: &mut EntityCommands, object_data: &Obje
 pub fn update_colliders(
     mut ev_collision_enter: EventWriter<CollisionEnterEvent>,
     mut ev_collision_exit: EventWriter<CollisionExitEvent>,
-    mut colliders: Query<(Entity, &Transform, &mut Collider)>,
+    mut colliders: Query<(Entity, &Transform, &mut Collider), Without<ColliderDisabled>>,
 ) {
     let mut combinations = colliders.iter_combinations_mut::<2>();
     while let Some([(entity1, transform1, mut collider1), (entity2, transform2, mut collider2)]) =
