@@ -36,7 +36,8 @@ struct MapHandleIds {
 
 #[derive(Debug, Resource)]
 pub struct MapServer {
-    pub tutorial_maps: Vec<MapData>,
+    pub map_idx: usize,
+    pub maps: Vec<MapData>,
 }
 
 // Data
@@ -93,7 +94,8 @@ fn create_map_server(
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     let mut map_server = MapServer {
-        tutorial_maps: Vec::<MapData>::new(),
+        map_idx: 0,
+        maps: Vec::<MapData>::new(),
     };
 
     for map_handle in map_handles.maps.iter() {
@@ -149,7 +151,7 @@ fn create_map_server(
 
         let map_sprite_sheet = spritesheet_assets.get(&asset.sprite_sheet).unwrap();
 
-        map_server.tutorial_maps.push(MapData {
+        map_server.maps.push(MapData {
             width: asset.width,
             height: asset.height,
             tile_width: asset.tile_width,

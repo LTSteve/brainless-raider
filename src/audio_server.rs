@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::NoTearDown;
+
 // Plugin
 
 pub struct AudioServerPlugin;
@@ -45,23 +47,29 @@ pub struct AudioServer {
 pub struct PlayableAudioSource(Handle<AudioSource>);
 
 impl PlayableAudioSource {
-    pub fn create_one_shot(&self) -> AudioBundle {
-        AudioBundle {
-            source: self.0.clone(),
-            settings: PlaybackSettings {
-                mode: bevy::audio::PlaybackMode::Despawn, // hmm... TODO: can we save these audio bundles and re-use them rather than spawn/despawn
-                ..default()
+    pub fn create_one_shot(&self) -> (AudioBundle, NoTearDown) {
+        (
+            AudioBundle {
+                source: self.0.clone(),
+                settings: PlaybackSettings {
+                    mode: bevy::audio::PlaybackMode::Despawn, // hmm... TODO: can we save these audio bundles and re-use them rather than spawn/despawn
+                    ..default()
+                },
             },
-        }
+            NoTearDown,
+        )
     }
-    pub fn create_loop(&self) -> AudioBundle {
-        AudioBundle {
-            source: self.0.clone(),
-            settings: PlaybackSettings {
-                mode: bevy::audio::PlaybackMode::Loop,
-                ..default()
+    pub fn create_loop(&self) -> (AudioBundle, NoTearDown) {
+        (
+            AudioBundle {
+                source: self.0.clone(),
+                settings: PlaybackSettings {
+                    mode: bevy::audio::PlaybackMode::Loop, // hmm... TODO: can we save these audio bundles and re-use them rather than spawn/despawn
+                    ..default()
+                },
             },
-        }
+            NoTearDown,
+        )
     }
 }
 

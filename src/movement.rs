@@ -46,7 +46,7 @@ pub fn move_movers(
     time: Res<Time>,
     map_server: Res<MapServer>,
 ) {
-    let active_map = &map_server.tutorial_maps[0];
+    let active_map = &map_server.maps[map_server.map_idx];
 
     for (mut transform, mut mover) in movers.iter_mut() {
         mover.move_percent = clamp(

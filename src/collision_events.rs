@@ -23,7 +23,7 @@ impl Plugin for CollisionEventsPlugin {
             (
                 on_adventurer_goblinoid_collide,
                 on_mover_treasure_collide,
-                on_adventurer_exit_collide,
+                on_adventurer_exit_collide.run_if(in_state(MapLoadState::Done)),
             ),
         );
     }
@@ -118,6 +118,8 @@ pub fn on_adventurer_exit_collide(
     adventurer_q: Query<&Adventurer>,
     exit_q: Query<&Exit>,
     audio_server: Option<Res<AudioServer>>,
+    mut next_state: ResMut<NextState<SceneState>>,
+    mut map_server: ResMut<MapServer>,
 ) {
     for e in ev_collision_enter.read() {
         let (entity1, entity2) = align_entities(e.0, e.1, &adventurer_q);
@@ -125,7 +127,8 @@ pub fn on_adventurer_exit_collide(
             if let Some(audio_server) = &audio_server {
                 commands.spawn(audio_server.exit.create_one_shot());
             }
-            println!("Exit");
+            map_server.map_idx = (map_server.map_idx + 1) % 5; // TODO: temp
+            next_state.set(SceneState::Transitioning);
         }
     }
 }
