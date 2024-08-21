@@ -5,6 +5,7 @@ mod collision_events;
 mod hydrate_components;
 mod map_loader;
 mod movement;
+mod treasure_train;
 
 use audio_server::*;
 use bevy::prelude::*;
@@ -13,6 +14,7 @@ use collision::*;
 use collision_events::*;
 use hydrate_components::*;
 use movement::*;
+use treasure_train::*;
 
 pub const FLOOR_Z: f32 = 0.0;
 pub const ENTITY_Z_OFFSET: f32 = 10.0;
@@ -47,6 +49,7 @@ fn main() {
             },
             CollisionEventsPlugin,
             AudioServerPlugin,
+            TreasureTrainPlugin,
         ))
         .add_systems(OnEnter(MapLoadState::Done), setup_scene)
         .add_systems(Update, move_movers.run_if(in_state(MapLoadState::Done)))
@@ -59,8 +62,6 @@ fn main() {
 pub struct Goblinoid;
 #[derive(Default, Component)]
 pub struct Adventurer;
-#[derive(Default, Component)]
-pub struct Treasure;
 
 // Systems
 
@@ -149,7 +150,7 @@ fn clamp(val: f32, min: f32, max: f32) -> f32 {
     return val;
 }
 
-fn coord_to_pos(val: f32) -> f32 {
+pub fn coord_to_pos(val: f32) -> f32 {
     return (val * TILE_WIDTH - HALF_MAP_WIDTH + HALF_TILE_WIDTH) * SCALE;
 }
 

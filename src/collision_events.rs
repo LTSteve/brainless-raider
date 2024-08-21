@@ -59,15 +59,38 @@ pub fn on_adventurer_goblinoid_collide(
 pub fn on_adventurer_treasure_collide(
     mut commands: Commands,
     mut ev_collision_enter: EventReader<CollisionEnterEvent>,
-    adventurer_q: Query<Entity, With<Adventurer>>,
+    adventurer_q: Query<(Entity, &Mover), With<Adventurer>>,
     treasure_q: Query<Entity, With<Treasure>>,
     audio_server: Option<Res<AudioServer>>,
+    mut treasure_train_q: Query<&mut TreasureTrain>,
 ) {
     for e in ev_collision_enter.read() {
         let (entity1, entity2) = align_entities(e.0, e.1, &adventurer_q);
-        if let (Ok(_), Ok(_)) = (adventurer_q.get(entity1), treasure_q.get(entity2)) {
+        if let (Ok((adventurer_entity, mover)), Ok(treasure_entity)) =
+            (adventurer_q.get(entity1), treasure_q.get(entity2))
+        {
             if let Some(audio_server) = &audio_server {
                 commands.spawn(audio_server.pick_up.create_one_shot());
+            }
+
+            let mut found_treasure_train: Option<Mut<TreasureTrain>> = None;
+
+            for tr in treasure_train_q.iter_mut() {
+                if tr.mover == adventurer_entity {
+                    found_treasure_train = Some(tr);
+                    break;
+                }
+            }
+
+            if let Some(mut treasure_train_entity) = found_treasure_train {
+                treasure_train_entity.treasures.push(treasure_entity);
+            } else {
+                commands.spawn(TreasureTrain {
+                    mover: adventurer_entity,
+                    treasures: vec![treasure_entity],
+                    head_spot: mover.target,
+                    target_spots: vec![mover.coord],
+                });
             }
         }
     }
@@ -77,15 +100,19 @@ pub fn on_goblinoid_treasure_collide(
     mut commands: Commands,
     mut ev_collision_enter: EventReader<CollisionEnterEvent>,
     goblinoid_q: Query<Entity, With<Goblinoid>>,
-    treasure_q: Query<Entity, With<Treasure>>,
+    mut treasure_q: Query<&mut Treasure>,
     audio_server: Option<Res<AudioServer>>,
 ) {
     for e in ev_collision_enter.read() {
         let (entity1, entity2) = align_entities(e.0, e.1, &goblinoid_q);
-        if let (Ok(_), Ok(_)) = (goblinoid_q.get(entity1), treasure_q.get(entity2)) {
+        if let (Ok(goblinoid_entity), Ok(mut treasure)) =
+            (goblinoid_q.get(entity1), treasure_q.get_mut(entity2))
+        {
+            /*
             if let Some(audio_server) = &audio_server {
                 commands.spawn(audio_server.pick_up.create_one_shot());
             }
+            treasure.following = Some(goblinoid_entity); */
         }
     }
 }
