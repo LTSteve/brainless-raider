@@ -36,7 +36,7 @@ fn main() {
                 String::from("maps/tutorial/4.tmx"),
             ]),
             CollisionPlugin {
-                debug_collisions: true,
+                debug_collisions: false,
             },
             CollisionEventsPlugin,
             AudioServerPlugin,

@@ -56,6 +56,8 @@ fn setup_scene(
     map_server: Res<MapServer>,
     camera_query: Query<&Camera2d>,
     mut next_state: ResMut<NextState<SceneState>>,
+    audio_server: Option<Res<AudioServer>>,
+    active_sfx_query: Query<&AudioSink>,
 ) {
     let map = &map_server.maps[map_server.map_idx];
     let texture = &map.sprite_sheet.sprite;
@@ -63,6 +65,15 @@ fn setup_scene(
     if let Err(err) = camera_query.get_single() {
         if let bevy::ecs::query::QuerySingleError::NoEntities(_) = err {
             commands.spawn((Camera2dBundle::default(), NoTearDown));
+        }
+    }
+
+    // TODO: temp, realistically this will go in the menu / initialization section
+    if let Some(audio_server) = audio_server {
+        if let Err(err) = active_sfx_query.get_single() {
+            if let bevy::ecs::query::QuerySingleError::NoEntities(_) = err {
+                commands.spawn(audio_server.dumbraider.create_loop());
+            }
         }
     }
 
