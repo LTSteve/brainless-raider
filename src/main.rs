@@ -49,7 +49,7 @@ fn main() {
             TreasureTrainPlugin,
             ScenePlugin,
             MovementPlugin,
-            ClickableAreaPlugin,
+            ClickableAreaPlugin { debug_clicks: true },
         ))
         .run();
 }
