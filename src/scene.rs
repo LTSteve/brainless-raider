@@ -97,6 +97,7 @@ fn setup_scene(
     let entity_hydrator = &ComponentHydrators::new()
         .register_hydrator("Mover", hydrate_mover)
         .register_hydrator("Collider", hydrate_collider)
+        .register_hydrator("ClickableArea", hydrate_clickable_area)
         .register_tag::<Goblinoid>("Goblinoid")
         .register_tag::<Adventurer>("Adventurer")
         .register_tag::<Treasure>("Treasure")

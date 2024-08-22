@@ -1,5 +1,6 @@
 mod audio_server;
 mod brmap;
+mod clickable_area;
 mod collision;
 mod collision_events;
 mod helpers;
@@ -13,6 +14,7 @@ mod treasure_train;
 use audio_server::*;
 use bevy::prelude::*;
 use brmap::*;
+use clickable_area::*;
 use collision::*;
 use collision_events::*;
 use helpers::*;
@@ -47,6 +49,15 @@ fn main() {
             TreasureTrainPlugin,
             ScenePlugin,
             MovementPlugin,
+            ClickableAreaPlugin,
         ))
         .run();
+}
+
+fn make_cursor_pointer(buttons: Res<ButtonInput<MouseButton>>, mut window_q: Query<&mut Window>) {
+    for _ in buttons.get_just_pressed() {
+        if let Ok(mut window) = window_q.get_single_mut() {
+            window.cursor.icon = CursorIcon::Pointer;
+        }
+    }
 }
