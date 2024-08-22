@@ -11,6 +11,15 @@ const DOWN: IVec2 = IVec2::new(0, -1);
 
 const MOVER_SPEED: f32 = 1.95;
 
+// Plugin
+
+pub struct MovementPlugin;
+impl Plugin for MovementPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Update, move_movers.run_if(in_state(MapLoadState::Done)));
+    }
+}
+
 // Components
 
 #[derive(Debug, Component)]
@@ -46,7 +55,7 @@ pub fn move_movers(
     time: Res<Time>,
     map_server: Res<MapServer>,
 ) {
-    let active_map = &map_server.tutorial_maps[0];
+    let active_map = &map_server.maps[map_server.map_idx];
 
     for (mut transform, mut mover) in movers.iter_mut() {
         mover.move_percent = clamp(

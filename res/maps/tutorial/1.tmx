@@ -36,7 +36,12 @@
 </data>
  </layer>
  <objectgroup id="3" name="Objects">
-  <object id="1" template="../../templates/adventurer.tx" x="240" y="176"/>
+  <object id="1" template="../../templates/adventurer.tx" x="240" y="176">
+   <properties>
+    <property name="dir_x" type="int" value="0"/>
+    <property name="dir_y" type="int" value="-1"/>
+   </properties>
+  </object>
   <object id="3" template="../../templates/exit.tx" x="192" y="240"/>
   <object id="4" template="../../templates/treasure.tx" x="192" y="272"/>
   <object id="5" template="../../templates/treasure.tx" x="208" y="304"/>

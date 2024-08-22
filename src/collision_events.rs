@@ -2,7 +2,7 @@ use std::f32::consts::PI;
 
 use crate::*;
 use bevy::{
-    ecs::query::{QueryData, QueryEntityError, QueryFilter},
+    ecs::query::{QueryData, QueryFilter},
     prelude::*,
 };
 
@@ -20,7 +20,11 @@ impl Plugin for CollisionEventsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (on_adventurer_goblinoid_collide, on_mover_treasure_collide),
+            (
+                on_adventurer_goblinoid_collide,
+                on_mover_treasure_collide,
+                on_adventurer_exit_collide.run_if(in_state(MapLoadState::Done)),
+            ),
         );
     }
 }
@@ -70,15 +74,15 @@ pub fn on_adventurer_goblinoid_collide(
 pub fn on_mover_treasure_collide(
     mut commands: Commands,
     mut ev_collision_enter: EventReader<CollisionEnterEvent>,
-    adventurer_q: Query<(Entity, &Mover)>,
+    mover_q: Query<(Entity, &Mover)>,
     treasure_q: Query<Entity, With<Treasure>>,
     audio_server: Option<Res<AudioServer>>,
     mut treasure_train_q: Query<&mut TreasureTrain>,
 ) {
     for e in ev_collision_enter.read() {
-        let (entity1, entity2) = align_entities(e.0, e.1, &adventurer_q);
+        let (entity1, entity2) = align_entities(e.0, e.1, &mover_q);
         if let (Ok((adventurer_entity, mover)), Ok(treasure_entity)) =
-            (adventurer_q.get(entity1), treasure_q.get(entity2))
+            (mover_q.get(entity1), treasure_q.get(entity2))
         {
             commands.entity(treasure_entity).insert(ColliderDisabled);
             if let Some(audio_server) = &audio_server {
@@ -104,6 +108,27 @@ pub fn on_mover_treasure_collide(
                     target_spots: vec![mover.coord],
                 });
             }
+        }
+    }
+}
+
+pub fn on_adventurer_exit_collide(
+    mut commands: Commands,
+    mut ev_collision_enter: EventReader<CollisionEnterEvent>,
+    adventurer_q: Query<&Adventurer>,
+    exit_q: Query<&Exit>,
+    audio_server: Option<Res<AudioServer>>,
+    mut next_state: ResMut<NextState<SceneState>>,
+    mut map_server: ResMut<MapServer>,
+) {
+    for e in ev_collision_enter.read() {
+        let (entity1, entity2) = align_entities(e.0, e.1, &adventurer_q);
+        if let (Ok(_), Ok(_)) = (adventurer_q.get(entity1), exit_q.get(entity2)) {
+            if let Some(audio_server) = &audio_server {
+                commands.spawn(audio_server.exit.create_one_shot());
+            }
+            map_server.map_idx = (map_server.map_idx + 1) % 5; // TODO: temp
+            next_state.set(SceneState::Transitioning);
         }
     }
 }
