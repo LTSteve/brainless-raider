@@ -11,6 +11,15 @@ const DOWN: IVec2 = IVec2::new(0, -1);
 
 const MOVER_SPEED: f32 = 1.95;
 
+// Plugin
+
+pub struct MovementPlugin;
+impl Plugin for MovementPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Update, move_movers.run_if(in_state(MapLoadState::Done)));
+    }
+}
+
 // Components
 
 #[derive(Debug, Component)]

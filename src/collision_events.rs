@@ -2,7 +2,7 @@ use std::f32::consts::PI;
 
 use crate::*;
 use bevy::{
-    ecs::query::{QueryData, QueryEntityError, QueryFilter},
+    ecs::query::{QueryData, QueryFilter},
     prelude::*,
 };
 
