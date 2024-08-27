@@ -24,13 +24,13 @@ impl Plugin for TeleporterPlugin {
 pub struct EnterPortal {
     id: u16,
     exit_portal_id: i64,
-    exit_portal: Option<Entity>,
+    pub exit_portal: Option<Entity>,
 }
 
 #[derive(Debug, Component)]
 pub struct ExitPortal {
     id: u16,
-    exit_dir: IVec2,
+    pub exit_dir: IVec2,
     active: bool,
 }
 
@@ -171,14 +171,15 @@ fn hide_inactive_exit_portals(mut exit_q: Query<(&mut Sprite, &ExitPortal)>) {
 fn toggle_exit_portals(
     mut ev_mouse_click: EventReader<MouseClickEvent>,
     mut teleporter_q: Query<&mut Teleporter, With<ClickableArea>>,
-    mut exit_q: Query<&mut ExitPortal>,
+    mut exit_q: Query<(Entity, &mut ExitPortal)>,
+    mut enter_q: Query<&mut EnterPortal>,
     audio_server: Option<Res<AudioServer>>,
     mut commands: Commands,
 ) {
     for e in ev_mouse_click.read() {
         let entity = e.0;
         if let Ok(mut teleporter) = teleporter_q.get_mut(entity) {
-            if let Ok(mut exit) =
+            if let Ok((_, mut exit)) =
                 exit_q.get_mut(teleporter.exit_portals[teleporter.active_exit_portal])
             {
                 exit.active = false;
@@ -187,10 +188,16 @@ fn toggle_exit_portals(
             teleporter.active_exit_portal =
                 (teleporter.active_exit_portal + 1) % teleporter.exit_portals.len();
 
-            if let Ok(mut exit) =
+            if let Ok((exit_entity, mut exit_portal)) =
                 exit_q.get_mut(teleporter.exit_portals[teleporter.active_exit_portal])
             {
-                exit.active = true;
+                exit_portal.active = true;
+
+                if let Some(enter_portal) = teleporter.enter_portal {
+                    if let Ok(mut enter) = enter_q.get_mut(enter_portal) {
+                        enter.exit_portal = Some(exit_entity);
+                    }
+                }
             }
 
             if let Some(audio_server) = &audio_server {

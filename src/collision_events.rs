@@ -24,6 +24,7 @@ impl Plugin for CollisionEventsPlugin {
                 on_adventurer_goblinoid_collide,
                 on_mover_treasure_collide,
                 on_adventurer_exit_collide.run_if(in_state(MapLoadState::Done)),
+                on_mover_portal_collide,
             ),
         );
     }
@@ -129,6 +130,33 @@ pub fn on_adventurer_exit_collide(
             }
             map_server.map_idx = (map_server.map_idx + 1) % 5; // TODO: temp
             next_state.set(SceneState::Transitioning);
+        }
+    }
+}
+
+pub fn on_mover_portal_collide(
+    mut ev_collision_enter: EventReader<CollisionEnterEvent>,
+    mut adventurer_q: Query<(&mut Mover, &mut Transform)>,
+    portal_q: Query<&EnterPortal>,
+    exit_portal_q: Query<(&Transform, &ExitPortal), Without<Mover>>,
+) {
+    for e in ev_collision_enter.read() {
+        let (entity1, entity2) = align_entities(e.0, e.1, &adventurer_q);
+        if let (Ok((mut mover, mut mover_transform)), Ok(portal)) =
+            (adventurer_q.get_mut(entity1), portal_q.get(entity2))
+        {
+            if let Some(exit_entity) = portal.exit_portal {
+                if let Ok((exit_transform, exit_portal)) = exit_portal_q.get(exit_entity) {
+                    mover_transform.translation = exit_transform.translation;
+                    mover.coord = IVec2::new(
+                        pos_to_coord(exit_transform.translation.x) as i32,
+                        pos_to_coord(exit_transform.translation.y) as i32,
+                    );
+                    mover.dir = exit_portal.exit_dir;
+                    mover.target = mover.coord + mover.dir;
+                    mover.move_percent = 0.0;
+                }
+            }
         }
     }
 }
