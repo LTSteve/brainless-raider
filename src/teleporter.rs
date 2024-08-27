@@ -6,7 +6,7 @@ use bevy::{ecs::system::EntityCommands, prelude::*};
 pub struct TeleporterPlugin;
 impl Plugin for TeleporterPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
+        app.add_systems(Startup, add_hydrators).add_systems(
             Update,
             (
                 initialize_enter_portals,
@@ -16,6 +16,13 @@ impl Plugin for TeleporterPlugin {
             ),
         );
     }
+}
+
+fn add_hydrators(mut hydrators: ResMut<ComponentHydrators>) {
+    hydrators
+        .register_hydrator("EnterPortal", hydrate_enter_portal)
+        .register_hydrator("ExitPortal", hydrate_exit_portal)
+        .register_hydrator("Teleporter", hydrate_teleporter);
 }
 
 // Components

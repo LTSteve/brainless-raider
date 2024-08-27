@@ -36,6 +36,7 @@ fn main() {
                     ..default()
                 })
                 .set(ImagePlugin::default_nearest()),
+            HydrateComponentsPlugin,
             BRMapPlugin(vec![
                 String::from("maps/tutorial/0.tmx"),
                 String::from("maps/tutorial/1.tmx"),
@@ -55,12 +56,4 @@ fn main() {
             TeleporterPlugin,
         ))
         .run();
-}
-
-fn make_cursor_pointer(buttons: Res<ButtonInput<MouseButton>>, mut window_q: Query<&mut Window>) {
-    for _ in buttons.get_just_pressed() {
-        if let Ok(mut window) = window_q.get_single_mut() {
-            window.cursor.icon = CursorIcon::Pointer;
-        }
-    }
 }

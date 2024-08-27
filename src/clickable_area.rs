@@ -9,14 +9,20 @@ pub struct ClickableAreaPlugin {
 }
 impl Plugin for ClickableAreaPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<MouseClickEvent>().add_systems(
-            Update,
-            track_clickable_areas.run_if(in_state(MapLoadState::Done)),
-        );
+        app.add_event::<MouseClickEvent>()
+            .add_systems(Startup, add_hydrators)
+            .add_systems(
+                Update,
+                track_clickable_areas.run_if(in_state(MapLoadState::Done)),
+            );
         if self.debug_clicks {
             app.add_systems(Update, log_clicks.run_if(in_state(MapLoadState::Done)));
         }
     }
+}
+
+fn add_hydrators(mut hydrators: ResMut<ComponentHydrators>) {
+    hydrators.register_hydrator("ClickableArea", hydrate_clickable_area);
 }
 
 // Events

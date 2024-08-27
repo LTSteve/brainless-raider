@@ -11,11 +11,16 @@ impl Plugin for CollisionPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<CollisionEnterEvent>()
             .add_event::<CollisionExitEvent>()
+            .add_systems(Startup, add_hydrators)
             .add_systems(Update, update_colliders);
         if self.debug_collisions {
             app.add_systems(Update, (debug_collision_exit, debug_collision_enter));
         }
     }
+}
+
+fn add_hydrators(mut hydrators: ResMut<ComponentHydrators>) {
+    hydrators.register_hydrator("Collider", hydrate_collider);
 }
 
 // Events

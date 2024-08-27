@@ -46,6 +46,7 @@ fn setup_scene(
     mut next_state: ResMut<NextState<SceneState>>,
     audio_server: Option<Res<AudioServer>>,
     active_sfx_query: Query<&AudioSink>,
+    entity_hydrator: Res<ComponentHydrators>,
 ) {
     let map = &map_server.maps[map_server.map_idx];
     let texture = &map.sprite_sheet.sprite;
@@ -93,18 +94,6 @@ fn setup_scene(
             },
         ));
     }
-
-    let entity_hydrator = &ComponentHydrators::new()
-        .register_hydrator("Mover", hydrate_mover)
-        .register_hydrator("Collider", hydrate_collider)
-        .register_hydrator("ClickableArea", hydrate_clickable_area)
-        .register_hydrator("EnterPortal", hydrate_enter_portal)
-        .register_hydrator("ExitPortal", hydrate_exit_portal)
-        .register_hydrator("Teleporter", hydrate_teleporter)
-        .register_tag::<Goblinoid>("Goblinoid")
-        .register_tag::<Adventurer>("Adventurer")
-        .register_tag::<Treasure>("Treasure")
-        .register_tag::<Exit>("Exit");
 
     for obj in map.objects.iter() {
         let sprite_bundle = SpriteBundle {

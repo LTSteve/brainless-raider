@@ -18,7 +18,7 @@ pub const GOBLINOID_DEATH_ROTATION: f32 = 90.0;
 pub struct CollisionEventsPlugin;
 impl Plugin for CollisionEventsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
+        app.add_systems(Startup, add_hydrators).add_systems(
             Update,
             (
                 on_adventurer_goblinoid_collide,
@@ -31,6 +31,14 @@ impl Plugin for CollisionEventsPlugin {
 }
 
 // Systems
+
+fn add_hydrators(mut hydrators: ResMut<ComponentHydrators>) {
+    hydrators
+        .register_tag::<Goblinoid>("Goblinoid")
+        .register_tag::<Adventurer>("Adventurer")
+        .register_tag::<Treasure>("Treasure")
+        .register_tag::<Exit>("Exit");
+}
 
 pub fn on_adventurer_goblinoid_collide(
     mut commands: Commands,
@@ -139,9 +147,12 @@ pub fn on_mover_portal_collide(
     mut adventurer_q: Query<(&mut Mover, &mut Transform)>,
     portal_q: Query<&EnterPortal>,
     exit_portal_q: Query<(&Transform, &ExitPortal), Without<Mover>>,
+    audio_server: Option<Res<AudioServer>>,
+    mut commands: Commands,
 ) {
     for e in ev_collision_enter.read() {
         let (entity1, entity2) = align_entities(e.0, e.1, &adventurer_q);
+
         if let (Ok((mut mover, mut mover_transform)), Ok(portal)) =
             (adventurer_q.get_mut(entity1), portal_q.get(entity2))
         {
@@ -155,6 +166,10 @@ pub fn on_mover_portal_collide(
                     mover.dir = exit_portal.exit_dir;
                     mover.target = mover.coord + mover.dir;
                     mover.move_percent = 0.0;
+
+                    if let Some(audio_server) = &audio_server {
+                        commands.spawn(audio_server.portal.create_one_shot());
+                    }
                 }
             }
         }
