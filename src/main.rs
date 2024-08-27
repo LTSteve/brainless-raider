@@ -9,6 +9,7 @@ mod map_loader;
 mod movement;
 mod scene;
 mod tags;
+mod teleporter;
 mod treasure_train;
 
 use audio_server::*;
@@ -22,6 +23,7 @@ use hydrate_components::*;
 use movement::*;
 use scene::*;
 use tags::*;
+use teleporter::*;
 use treasure_train::*;
 
 fn main() {
@@ -50,6 +52,7 @@ fn main() {
             ScenePlugin,
             MovementPlugin,
             ClickableAreaPlugin { debug_clicks: true },
+            TeleporterPlugin,
         ))
         .run();
 }
