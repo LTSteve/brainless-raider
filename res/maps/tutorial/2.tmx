@@ -74,11 +74,15 @@
     <property name="active" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="16" template="../../templates/planks_trigger.tx" type="PlanksTrigger" x="208" y="256"/>
+  <object id="16" template="../../templates/planks_trigger.tx" type="PlanksTrigger" x="208.125" y="256">
+   <properties>
+    <property name="planks_2" type="object" value="13"/>
+   </properties>
+  </object>
   <object id="17" template="../../templates/planks_trigger.tx" type="PlanksTrigger" x="240" y="256">
    <properties>
-    <property name="planks_1" type="object" value="10"/>
-    <property name="planks_2" type="object" value="14"/>
+    <property name="planks_1" type="object" value="14"/>
+    <property name="planks_2" type="object" value="10"/>
    </properties>
   </object>
   <object id="18" template="../../templates/planks_trigger.tx" type="PlanksTrigger" x="256" y="256">

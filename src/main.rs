@@ -7,6 +7,7 @@ mod helpers;
 mod hydrate_components;
 mod map_loader;
 mod movement;
+mod pits_and_planks;
 mod scene;
 mod tags;
 mod teleporter;
@@ -21,6 +22,7 @@ use collision_events::*;
 use helpers::*;
 use hydrate_components::*;
 use movement::*;
+use pits_and_planks::*;
 use scene::*;
 use tags::*;
 use teleporter::*;
@@ -38,9 +40,9 @@ fn main() {
                 .set(ImagePlugin::default_nearest()),
             HydrateComponentsPlugin,
             BRMapPlugin(vec![
+                String::from("maps/tutorial/2.tmx"),
                 String::from("maps/tutorial/0.tmx"),
                 String::from("maps/tutorial/1.tmx"),
-                String::from("maps/tutorial/2.tmx"),
                 String::from("maps/tutorial/3.tmx"),
                 String::from("maps/tutorial/4.tmx"),
             ]),
@@ -54,6 +56,7 @@ fn main() {
             MovementPlugin,
             ClickableAreaPlugin { debug_clicks: true },
             TeleporterPlugin,
+            PitsAndPlanksPlugin,
         ))
         .run();
 }

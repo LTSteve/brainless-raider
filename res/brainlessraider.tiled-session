@@ -27,11 +27,11 @@
             "expandedObjectLayers": [
                 3
             ],
-            "scale": 2,
+            "scale": 5.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 240.25,
-                "y": 239.75
+                "x": 263.27272727272725,
+                "y": 233.36363636363637
             }
         },
         "maps/tutorial/2.tmx": {
@@ -84,7 +84,7 @@
         "maps/tutorial/4.tmx"
     ],
     "project": "brainlessraider.tiled-project",
-    "property.type": "float",
+    "property.type": "object",
     "recentFiles": [
         "sprites.tsx",
         "maps/tutorial/0.tmx",
