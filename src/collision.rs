@@ -41,9 +41,6 @@ pub struct Collider {
     pub active: bool,
 }
 
-#[derive(Debug, Component)]
-pub struct ColliderDisabled;
-
 pub fn hydrate_collider(entity_commands: &mut EntityCommands, object_data: &ObjectData) {
     let radius = get_property_value_from_object_or_default_f(object_data, "collider_radius", 4.0);
     let active = get_property_value_from_object_or_default_b(object_data, "collider_active", true);
@@ -61,7 +58,7 @@ pub fn hydrate_collider(entity_commands: &mut EntityCommands, object_data: &Obje
 pub fn update_colliders(
     mut ev_collision_enter: EventWriter<CollisionEnterEvent>,
     mut ev_collision_exit: EventWriter<CollisionExitEvent>,
-    mut colliders: Query<(Entity, &Transform, &mut Collider), Without<ColliderDisabled>>,
+    mut colliders: Query<(Entity, &Transform, &mut Collider)>,
 ) {
     let mut combinations = colliders.iter_combinations_mut::<2>();
     while let Some([(entity1, transform1, mut collider1), (entity2, transform2, mut collider2)]) =

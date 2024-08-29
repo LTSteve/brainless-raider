@@ -3,6 +3,7 @@ mod brmap;
 mod clickable_area;
 mod collision;
 mod collision_events;
+mod death;
 mod helpers;
 mod hydrate_components;
 mod map_loader;
@@ -19,6 +20,7 @@ use brmap::*;
 use clickable_area::*;
 use collision::*;
 use collision_events::*;
+use death::*;
 use helpers::*;
 use hydrate_components::*;
 use movement::*;
@@ -57,6 +59,7 @@ fn main() {
             ClickableAreaPlugin { debug_clicks: true },
             TeleporterPlugin,
             PitsAndPlanksPlugin,
+            DeathPlugin,
         ))
         .run();
 }

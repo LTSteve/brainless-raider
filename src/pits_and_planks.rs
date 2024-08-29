@@ -156,18 +156,31 @@ fn toggle_planks_triggers(
 }
 
 fn movers_fall_into_pits(
-    mover_q: Query<(&OverPlanksCounter, &OverPitCounter), With<Mover>>,
+    mover_q: Query<
+        (
+            Entity,
+            &OverPlanksCounter,
+            &OverPitCounter,
+            Option<&Adventurer>,
+        ),
+        With<Mover>,
+    >,
     audio_server: Option<Res<AudioServer>>,
     mut commands: Commands,
 ) {
-    for (over_planks_counter, over_pit_counter) in mover_q.iter() {
+    for (entity, over_planks_counter, over_pit_counter, adventurer) in mover_q.iter() {
         if over_planks_counter.0 > 0 {
             continue;
         }
         if over_pit_counter.0 > 0 {
             if let Some(audio_server) = &audio_server {
-                commands.spawn(audio_server.die.create_one_shot());
+                if let Some(_) = adventurer {
+                    commands.spawn(audio_server.die.create_one_shot());
+                } else {
+                    commands.spawn(audio_server.kill.create_one_shot());
+                }
             }
+            commands.entity(entity).insert(Dead);
         }
     }
 }
