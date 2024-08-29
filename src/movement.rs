@@ -41,16 +41,20 @@ pub fn hydrate_mover(entity_commands: &mut EntityCommands, object_data: &ObjectD
     let y = get_property_value_from_object_or_default_i(object_data, "dir_y", 0);
     let clockwise = get_property_value_from_object_or_default_b(object_data, "clockwise", false);
 
-    entity_commands.insert(Mover {
-        dir: IVec2::new(x as i32, y as i32),
-        target: IVec2::new(
-            object_data.x as i32 + x as i32,
-            object_data.y as i32 + y as i32,
-        ),
-        coord: IVec2::new(object_data.x as i32, object_data.y as i32),
-        move_percent: 0.0,
-        clockwise,
-    });
+    entity_commands.insert((
+        Mover {
+            dir: IVec2::new(x as i32, y as i32),
+            target: IVec2::new(
+                object_data.x as i32 + x as i32,
+                object_data.y as i32 + y as i32,
+            ),
+            coord: IVec2::new(object_data.x as i32, object_data.y as i32),
+            move_percent: 0.0,
+            clockwise,
+        },
+        OverPlanksCounter(0),
+        OverPitCounter(0),
+    ));
 }
 
 // Systems

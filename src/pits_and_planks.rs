@@ -12,6 +12,7 @@ impl Plugin for PitsAndPlanksPlugin {
                 hide_inactive_planks,
                 initialize_planks_triggers,
                 toggle_planks_triggers,
+                movers_fall_into_pits,
             ),
         );
     }
@@ -31,6 +32,15 @@ pub struct PlanksTrigger {
     pub planks_ids: Vec<i64>,
     pub active_planks_idx: usize,
 }
+
+#[derive(Debug, Component, Default)]
+pub struct Pit;
+
+#[derive(Debug, Component)]
+pub struct OverPlanksCounter(pub u16);
+
+#[derive(Debug, Component)]
+pub struct OverPitCounter(pub u16);
 
 // Hydrators
 
@@ -73,7 +83,8 @@ fn hydrate_planks_trigger(entity_commands: &mut EntityCommands, object_data: &Ob
 fn add_hydrators(mut hydrators: ResMut<ComponentHydrators>) {
     hydrators
         .register_hydrator("Planks", hydrate_planks)
-        .register_hydrator("PlanksTrigger", hydrate_planks_trigger);
+        .register_hydrator("PlanksTrigger", hydrate_planks_trigger)
+        .register_tag::<Pit>("Pit");
 }
 
 fn hide_inactive_planks(mut planks_q: Query<(&mut Sprite, &Planks)>) {
@@ -113,30 +124,49 @@ fn initialize_planks_triggers(
 fn toggle_planks_triggers(
     mut ev_mouse_click: EventReader<MouseClickEvent>,
     mut planks_trigger_q: Query<&mut PlanksTrigger, With<ClickableArea>>,
-    mut planks_q: Query<&mut Planks>,
+    mut planks_q: Query<(&mut Planks, &mut Collider)>,
     audio_server: Option<Res<AudioServer>>,
     mut commands: Commands,
 ) {
     for e in ev_mouse_click.read() {
         let entity = e.0;
         if let Ok(mut planks_trigger) = planks_trigger_q.get_mut(entity) {
-            if let Ok(mut planks) =
+            if let Ok((mut planks, mut collider)) =
                 planks_q.get_mut(planks_trigger.planks[planks_trigger.active_planks_idx])
             {
                 planks.active = false;
+                collider.active = false;
             }
 
             planks_trigger.active_planks_idx =
                 (planks_trigger.active_planks_idx + 1) % planks_trigger.planks.len();
 
-            if let Ok(mut planks) =
+            if let Ok((mut planks, mut collider)) =
                 planks_q.get_mut(planks_trigger.planks[planks_trigger.active_planks_idx])
             {
                 planks.active = true;
+                collider.active = true;
             }
 
             if let Some(audio_server) = &audio_server {
                 commands.spawn(audio_server.click.create_one_shot());
+            }
+        }
+    }
+}
+
+fn movers_fall_into_pits(
+    mover_q: Query<(&OverPlanksCounter, &OverPitCounter), With<Mover>>,
+    audio_server: Option<Res<AudioServer>>,
+    mut commands: Commands,
+) {
+    for (over_planks_counter, over_pit_counter) in mover_q.iter() {
+        if over_planks_counter.0 > 0 {
+            continue;
+        }
+        if over_pit_counter.0 > 0 {
+            if let Some(audio_server) = &audio_server {
+                commands.spawn(audio_server.die.create_one_shot());
             }
         }
     }

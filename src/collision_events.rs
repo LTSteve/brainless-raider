@@ -25,6 +25,10 @@ impl Plugin for CollisionEventsPlugin {
                 on_mover_treasure_collide,
                 on_adventurer_exit_collide.run_if(in_state(MapLoadState::Done)),
                 on_mover_portal_collide,
+                on_mover_pit_collide,
+                on_mover_pit_uncollide,
+                on_mover_planks_collide,
+                on_mover_planks_uncollide,
             ),
         );
     }
@@ -144,17 +148,17 @@ pub fn on_adventurer_exit_collide(
 
 pub fn on_mover_portal_collide(
     mut ev_collision_enter: EventReader<CollisionEnterEvent>,
-    mut adventurer_q: Query<(&mut Mover, &mut Transform)>,
+    mut mover_q: Query<(&mut Mover, &mut Transform)>,
     portal_q: Query<&EnterPortal>,
     exit_portal_q: Query<(&Transform, &ExitPortal), Without<Mover>>,
     audio_server: Option<Res<AudioServer>>,
     mut commands: Commands,
 ) {
     for e in ev_collision_enter.read() {
-        let (entity1, entity2) = align_entities(e.0, e.1, &adventurer_q);
+        let (entity1, entity2) = align_entities(e.0, e.1, &mover_q);
 
         if let (Ok((mut mover, mut mover_transform)), Ok(portal)) =
-            (adventurer_q.get_mut(entity1), portal_q.get(entity2))
+            (mover_q.get_mut(entity1), portal_q.get(entity2))
         {
             if let Some(exit_entity) = portal.exit_portal {
                 if let Ok((exit_transform, exit_portal)) = exit_portal_q.get(exit_entity) {
@@ -171,6 +175,70 @@ pub fn on_mover_portal_collide(
                         commands.spawn(audio_server.portal.create_one_shot());
                     }
                 }
+            }
+        }
+    }
+}
+
+pub fn on_mover_pit_collide(
+    mut ev_collision_enter: EventReader<CollisionEnterEvent>,
+    mut mover_q: Query<&mut OverPitCounter, With<Mover>>,
+    pit_q: Query<&Pit, Without<Mover>>,
+) {
+    for e in ev_collision_enter.read() {
+        let (entity1, entity2) = align_entities(e.0, e.1, &mover_q);
+
+        if let (Ok(mut over_pit_counter), Ok(_)) = (mover_q.get_mut(entity1), pit_q.get(entity2)) {
+            over_pit_counter.0 += 1;
+        }
+    }
+}
+
+pub fn on_mover_pit_uncollide(
+    mut ev_collision_exit: EventReader<CollisionExitEvent>,
+    mut mover_q: Query<&mut OverPitCounter, With<Mover>>,
+    pit_q: Query<&Pit, Without<Mover>>,
+) {
+    for e in ev_collision_exit.read() {
+        let (entity1, entity2) = align_entities(e.0, e.1, &mover_q);
+
+        if let (Ok(mut over_pit_counter), Ok(_)) = (mover_q.get_mut(entity1), pit_q.get(entity2)) {
+            over_pit_counter.0 -= 1;
+        }
+    }
+}
+
+pub fn on_mover_planks_collide(
+    mut ev_collision_enter: EventReader<CollisionEnterEvent>,
+    mut mover_q: Query<&mut OverPlanksCounter, With<Mover>>,
+    planks_q: Query<&Planks, Without<Mover>>,
+) {
+    for e in ev_collision_enter.read() {
+        let (entity1, entity2) = align_entities(e.0, e.1, &mover_q);
+
+        if let (Ok(mut over_planks_counter), Ok(planks)) =
+            (mover_q.get_mut(entity1), planks_q.get(entity2))
+        {
+            if planks.active {
+                over_planks_counter.0 += 1;
+            }
+        }
+    }
+}
+
+pub fn on_mover_planks_uncollide(
+    mut ev_collision_exit: EventReader<CollisionExitEvent>,
+    mut mover_q: Query<&mut OverPlanksCounter, With<Mover>>,
+    planks_q: Query<&Planks, Without<Mover>>,
+) {
+    for e in ev_collision_exit.read() {
+        let (entity1, entity2) = align_entities(e.0, e.1, &mover_q);
+
+        if let (Ok(mut over_planks_counter), Ok(_)) =
+            (mover_q.get_mut(entity1), planks_q.get(entity2))
+        {
+            if over_planks_counter.0 > 0 {
+                over_planks_counter.0 -= 1;
             }
         }
     }

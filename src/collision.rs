@@ -38,6 +38,7 @@ pub struct Collider {
     pub radius: f32,
     pub name: String,
     pub colliding_with: Vec<Entity>,
+    pub active: bool,
 }
 
 #[derive(Debug, Component)]
@@ -45,11 +46,13 @@ pub struct ColliderDisabled;
 
 pub fn hydrate_collider(entity_commands: &mut EntityCommands, object_data: &ObjectData) {
     let radius = get_property_value_from_object_or_default_f(object_data, "collider_radius", 4.0);
+    let active = get_property_value_from_object_or_default_b(object_data, "collider_active", true);
 
     entity_commands.insert(Collider {
         radius: radius as f32,
         name: object_data.obj_type.clone(),
         colliding_with: Vec::new(),
+        active,
     });
 }
 
@@ -66,26 +69,15 @@ pub fn update_colliders(
     {
         let dist: f32 = collider1.radius + collider2.radius;
         let dist2: f32 = dist * dist;
-        if transform1
-            .translation
-            .distance_squared(transform2.translation)
-            <= dist2
+        let both_active = collider1.active && collider2.active;
+
+        if !both_active
+            || (both_active
+                && transform1
+                    .translation
+                    .distance_squared(transform2.translation)
+                    > dist2)
         {
-            let mut new_collision = false;
-            if !collider1.colliding_with.contains(&entity2) {
-                collider1.colliding_with.push(entity2);
-                new_collision = true;
-            }
-
-            if !collider2.colliding_with.contains(&entity1) {
-                collider2.colliding_with.push(entity1);
-                new_collision = true;
-            }
-
-            if new_collision {
-                ev_collision_enter.send(CollisionEnterEvent(entity1, entity2));
-            }
-        } else {
             let pos1 = collider1.colliding_with.iter().position(|e| e.eq(&entity2));
             let pos2 = collider2.colliding_with.iter().position(|e| e.eq(&entity1));
 
@@ -102,6 +94,21 @@ pub fn update_colliders(
 
             if new_uncollision {
                 ev_collision_exit.send(CollisionExitEvent(entity1, entity2));
+            }
+        } else {
+            let mut new_collision = false;
+            if !collider1.colliding_with.contains(&entity2) {
+                collider1.colliding_with.push(entity2);
+                new_collision = true;
+            }
+
+            if !collider2.colliding_with.contains(&entity1) {
+                collider2.colliding_with.push(entity1);
+                new_collision = true;
+            }
+
+            if new_collision {
+                ev_collision_enter.send(CollisionEnterEvent(entity1, entity2));
             }
         }
     }
