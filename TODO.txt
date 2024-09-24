@@ -1,0 +1,10 @@
+TODO:
+- BUG: goblinoid exits from wrong side of teleporter
+- BUG: single pit doesn't toggle off
+- BUG: exit sometimes renders over player
+- Pause
+- Player respawn
+- Life count
+- You win screen
+- Treasure count
+- Adventurer picks up treasures on killing goblinoid

@@ -3,7 +3,14 @@ use bevy_utils::HashMap;
 
 use crate::ObjectData;
 
-#[derive(Clone)]
+pub struct HydrateComponentsPlugin;
+impl Plugin for HydrateComponentsPlugin {
+    fn build(&self, app: &mut App) {
+        app.insert_resource(ComponentHydrators::new());
+    }
+}
+
+#[derive(Clone, Debug, Resource)]
 pub struct ComponentHydrators {
     hydrators: HashMap<&'static str, fn(&mut EntityCommands, &ObjectData)>,
 }
@@ -16,15 +23,15 @@ impl ComponentHydrators {
     }
 
     pub fn register_hydrator(
-        mut self,
+        &mut self,
         component_name: &'static str,
         func: fn(&mut EntityCommands, &ObjectData),
-    ) -> Self {
+    ) -> &mut Self {
         self.hydrators.insert(component_name, func);
         return self;
     }
 
-    pub fn register_tag<T>(mut self, component_name: &'static str) -> Self
+    pub fn register_tag<T>(&mut self, component_name: &'static str) -> &mut Self
     where
         T: Default + Component,
     {

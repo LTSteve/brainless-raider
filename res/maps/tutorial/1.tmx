@@ -53,6 +53,10 @@
    </properties>
   </object>
   <object id="10" template="../../templates/exit_portal.tx" type="PortalExit" x="224" y="256"/>
-  <object id="11" template="../../templates/exit_portal.tx" type="PortalExit" x="256" y="256"/>
+  <object id="11" template="../../templates/exit_portal.tx" type="PortalExit" x="256" y="256">
+   <properties>
+    <property name="exit_dir_x" type="int" value="1"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>

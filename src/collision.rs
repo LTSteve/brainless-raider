@@ -11,11 +11,16 @@ impl Plugin for CollisionPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<CollisionEnterEvent>()
             .add_event::<CollisionExitEvent>()
+            .add_systems(Startup, add_hydrators)
             .add_systems(Update, update_colliders);
         if self.debug_collisions {
             app.add_systems(Update, (debug_collision_exit, debug_collision_enter));
         }
     }
+}
+
+fn add_hydrators(mut hydrators: ResMut<ComponentHydrators>) {
+    hydrators.register_hydrator("Collider", hydrate_collider);
 }
 
 // Events
@@ -33,18 +38,18 @@ pub struct Collider {
     pub radius: f32,
     pub name: String,
     pub colliding_with: Vec<Entity>,
+    pub active: bool,
 }
-
-#[derive(Debug, Component)]
-pub struct ColliderDisabled;
 
 pub fn hydrate_collider(entity_commands: &mut EntityCommands, object_data: &ObjectData) {
     let radius = get_property_value_from_object_or_default_f(object_data, "collider_radius", 4.0);
+    let active = get_property_value_from_object_or_default_b(object_data, "collider_active", true);
 
     entity_commands.insert(Collider {
         radius: radius as f32,
         name: object_data.obj_type.clone(),
         colliding_with: Vec::new(),
+        active,
     });
 }
 
@@ -53,7 +58,7 @@ pub fn hydrate_collider(entity_commands: &mut EntityCommands, object_data: &Obje
 pub fn update_colliders(
     mut ev_collision_enter: EventWriter<CollisionEnterEvent>,
     mut ev_collision_exit: EventWriter<CollisionExitEvent>,
-    mut colliders: Query<(Entity, &Transform, &mut Collider), Without<ColliderDisabled>>,
+    mut colliders: Query<(Entity, &Transform, &mut Collider)>,
 ) {
     let mut combinations = colliders.iter_combinations_mut::<2>();
     while let Some([(entity1, transform1, mut collider1), (entity2, transform2, mut collider2)]) =
@@ -61,26 +66,15 @@ pub fn update_colliders(
     {
         let dist: f32 = collider1.radius + collider2.radius;
         let dist2: f32 = dist * dist;
-        if transform1
-            .translation
-            .distance_squared(transform2.translation)
-            <= dist2
+        let both_active = collider1.active && collider2.active;
+
+        if !both_active
+            || (both_active
+                && transform1
+                    .translation
+                    .distance_squared(transform2.translation)
+                    > dist2)
         {
-            let mut new_collision = false;
-            if !collider1.colliding_with.contains(&entity2) {
-                collider1.colliding_with.push(entity2);
-                new_collision = true;
-            }
-
-            if !collider2.colliding_with.contains(&entity1) {
-                collider2.colliding_with.push(entity1);
-                new_collision = true;
-            }
-
-            if new_collision {
-                ev_collision_enter.send(CollisionEnterEvent(entity1, entity2));
-            }
-        } else {
             let pos1 = collider1.colliding_with.iter().position(|e| e.eq(&entity2));
             let pos2 = collider2.colliding_with.iter().position(|e| e.eq(&entity1));
 
@@ -97,6 +91,21 @@ pub fn update_colliders(
 
             if new_uncollision {
                 ev_collision_exit.send(CollisionExitEvent(entity1, entity2));
+            }
+        } else {
+            let mut new_collision = false;
+            if !collider1.colliding_with.contains(&entity2) {
+                collider1.colliding_with.push(entity2);
+                new_collision = true;
+            }
+
+            if !collider2.colliding_with.contains(&entity1) {
+                collider2.colliding_with.push(entity1);
+                new_collision = true;
+            }
+
+            if new_collision {
+                ev_collision_enter.send(CollisionEnterEvent(entity1, entity2));
             }
         }
     }
