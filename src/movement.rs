@@ -16,8 +16,12 @@ const MOVER_SPEED: f32 = 1.95;
 pub struct MovementPlugin;
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, add_hydrators)
-            .add_systems(Update, move_movers.run_if(in_state(MapLoadState::Done)));
+        app.add_systems(Startup, add_hydrators).add_systems(
+            Update,
+            move_movers
+                .run_if(in_state(MapLoadState::Done))
+                .run_if(in_state(PauseState::Running)),
+        );
     }
 }
 

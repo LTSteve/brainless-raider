@@ -47,10 +47,12 @@ pub fn on_adventurer_goblinoid_collide(
     for e in ev_collision_enter.read() {
         let (entity1, entity2) = align_entities(e.0, e.1, &adventurer_q);
 
-        if let (Ok(_), Ok(goblinoid_entity)) =
+        if let (Ok(adventurer_entity), Ok(goblinoid_entity)) =
             (adventurer_q.get(entity1), goblinoid_q.get_mut(entity2))
         {
-            commands.entity(goblinoid_entity).insert(Dead);
+            commands.entity(goblinoid_entity).insert(Dead {
+                killed_by: Some(adventurer_entity),
+            });
             if let Some(audio_server) = &audio_server {
                 commands.spawn(audio_server.kill.create_one_shot());
             }
@@ -65,10 +67,11 @@ pub fn on_mover_treasure_collide(
     mut treasure_q: Query<(Entity, &mut Collider), With<Treasure>>,
     audio_server: Option<Res<AudioServer>>,
     mut treasure_train_q: Query<&mut TreasureTrain>,
+    //mut next_state: ResMut<NextState<PauseState>>,
 ) {
     for e in ev_collision_enter.read() {
         let (entity1, entity2) = align_entities(e.0, e.1, &mover_q);
-        if let (Ok((adventurer_entity, mover)), Ok((treasure_entity, mut treasure_collider))) =
+        if let (Ok((mover_entity, mover)), Ok((treasure_entity, mut treasure_collider))) =
             (mover_q.get(entity1), treasure_q.get_mut(entity2))
         {
             treasure_collider.active = false;
@@ -79,7 +82,7 @@ pub fn on_mover_treasure_collide(
             let mut found_treasure_train: Option<Mut<TreasureTrain>> = None;
 
             for tr in treasure_train_q.iter_mut() {
-                if tr.mover == adventurer_entity {
+                if tr.mover == mover_entity {
                     found_treasure_train = Some(tr);
                     break;
                 }
@@ -89,12 +92,14 @@ pub fn on_mover_treasure_collide(
                 treasure_train_entity.treasures.push(treasure_entity);
             } else {
                 commands.spawn(TreasureTrain {
-                    mover: adventurer_entity,
+                    mover: mover_entity,
                     treasures: vec![treasure_entity],
                     head_spot: mover.target,
                     target_spots: vec![mover.coord],
                 });
             }
+
+            //next_state.set(PauseState::Paused);
         }
     }
 }

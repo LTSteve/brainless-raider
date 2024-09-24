@@ -189,7 +189,7 @@ fn movers_fall_into_pits(
                     commands.spawn(audio_server.kill.create_one_shot());
                 }
             }
-            commands.entity(entity).insert(Dead);
+            commands.entity(entity).insert(Dead { killed_by: None });
         }
     }
 }

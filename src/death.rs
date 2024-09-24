@@ -21,34 +21,70 @@ impl Plugin for DeathPlugin {
 // Components
 
 #[derive(Debug, Component)]
-pub struct Dead;
+pub struct Dead {
+    pub killed_by: Option<Entity>,
+}
 
 // Systems
 
 fn movers_die(
     mut dead_mover_q: Query<
-        (Entity, &mut Transform, &mut Sprite, &mut Collider),
-        (With<Dead>, With<Mover>),
+        (Entity, &mut Transform, &mut Sprite, &mut Collider, &Dead),
+        With<Mover>,
     >,
-    treasure_train_q: Query<(Entity, &TreasureTrain)>,
+    mut treasure_train_q: Query<(Entity, &mut TreasureTrain)>,
     mut treasure_collider_q: Query<&mut Collider, (With<Treasure>, Without<Mover>)>,
     mut commands: Commands,
 ) {
-    for (mover_entity, mut transform, mut sprite, mut collider) in dead_mover_q.iter_mut() {
-        for (entity, treasure_train) in treasure_train_q.iter() {
-            if treasure_train.mover == mover_entity {
-                // re enable colliders for all treasures on the train
-                for &treasure_entity in &treasure_train.treasures {
-                    if let Ok(mut treasure_collider) = treasure_collider_q.get_mut(treasure_entity)
-                    {
-                        treasure_collider.active = true;
-                    }
+    for (mover_entity, mut transform, mut sprite, mut collider, dead) in dead_mover_q.iter_mut() {
+        let mut did_treasure_transfer = false;
+
+        if let Some(killed_by) = dead.killed_by {
+            let mut killed_train_e: Option<Entity> = None;
+            let mut killed_train: Option<Mut<'_, TreasureTrain>> = None;
+            let mut killer_train: Option<Mut<'_, TreasureTrain>> = None;
+
+            for (entity, treasure_train) in treasure_train_q.iter_mut() {
+                if treasure_train.mover == mover_entity {
+                    killed_train = Some(treasure_train);
+                    killed_train_e = Some(entity);
+                } else if treasure_train.mover == killed_by {
+                    killer_train = Some(treasure_train);
                 }
+            }
+
+            if let (Some(killed_train_e), Some(killed_train), Some(mut killer_train)) =
+                (killed_train_e, killed_train, killer_train)
+            {
+                for treasure in &killed_train.treasures {
+                    killer_train.treasures.push(*treasure);
+                }
+
                 // despawn the treasure train
-                commands.entity(entity).despawn();
-                break;
+                commands.entity(killed_train_e).despawn();
+
+                did_treasure_transfer = true;
             }
         }
+
+        if !did_treasure_transfer {
+            for (entity, treasure_train) in treasure_train_q.iter() {
+                if treasure_train.mover == mover_entity {
+                    // re enable colliders for all treasures on the train
+                    for &treasure_entity in &treasure_train.treasures {
+                        if let Ok(mut treasure_collider) =
+                            treasure_collider_q.get_mut(treasure_entity)
+                        {
+                            treasure_collider.active = true;
+                        }
+                    }
+                    // despawn the treasure train
+                    commands.entity(entity).despawn();
+                    break;
+                }
+            }
+        }
+
         commands
             .entity(mover_entity)
             .remove::<Mover>()
