@@ -8,6 +8,7 @@ mod helpers;
 mod hydrate_components;
 mod map_loader;
 mod movement;
+mod pause;
 mod pits_and_planks;
 mod scene;
 mod tags;
@@ -24,6 +25,7 @@ use death::*;
 use helpers::*;
 use hydrate_components::*;
 use movement::*;
+use pause::*;
 use pits_and_planks::*;
 use scene::*;
 use tags::*;
@@ -60,6 +62,7 @@ fn main() {
             TeleporterPlugin,
             PitsAndPlanksPlugin,
             DeathPlugin,
+            PausePlugin,
         ))
         .run();
 }

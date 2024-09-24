@@ -67,6 +67,7 @@ pub fn on_mover_treasure_collide(
     mut treasure_q: Query<(Entity, &mut Collider), With<Treasure>>,
     audio_server: Option<Res<AudioServer>>,
     mut treasure_train_q: Query<&mut TreasureTrain>,
+    //mut next_state: ResMut<NextState<PauseState>>,
 ) {
     for e in ev_collision_enter.read() {
         let (entity1, entity2) = align_entities(e.0, e.1, &mover_q);
@@ -97,6 +98,8 @@ pub fn on_mover_treasure_collide(
                     target_spots: vec![mover.coord],
                 });
             }
+
+            //next_state.set(PauseState::Paused);
         }
     }
 }
