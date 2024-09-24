@@ -9,12 +9,17 @@ pub const DEATH_SCALE: f32 = 0.8;
 pub const DEATH_COLOR: Color = Color::GRAY;
 pub const DEATH_ROTATION: f32 = 90.0;
 
+pub const DEATH_DELAY: f32 = 1.0;
+
 // Plugin
 
 pub struct DeathPlugin;
 impl Plugin for DeathPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, movers_die);
+        app.add_systems(Update, movers_die).add_systems(
+            Update,
+            dead_adventurers_respawn().run_if(in_state(PauseState::Running)),
+        );
     }
 }
 
@@ -85,16 +90,29 @@ fn movers_die(
             }
         }
 
-        commands
-            .entity(mover_entity)
-            .remove::<Mover>()
-            .remove::<Dead>();
+        commands.entity(mover_entity).remove::<Mover>();
         collider.active = false;
         transform.rotate_z(deg_to_rad(DEATH_ROTATION));
         transform.scale = transform.scale * DEATH_SCALE;
         transform.translation.z -= DEATH_OFFSET;
         sprite.color = DEATH_COLOR;
     }
+}
+
+fn dead_adventurers_respawn(
+) -> impl FnMut(Query<Entity, (With<Adventurer>, With<Dead>)>, Res<Time>, ResMut<NextState<SceneState>>)
+{
+    let mut death_delay = DEATH_DELAY;
+
+    return move |dead_mover_q, time, mut next_state| {
+        for _ in dead_mover_q.iter() {
+            death_delay -= time.delta_seconds();
+            if death_delay <= 0.0 {
+                death_delay = DEATH_DELAY;
+                next_state.set(SceneState::Transitioning);
+            }
+        }
+    };
 }
 
 // Helpers

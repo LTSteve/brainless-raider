@@ -6,15 +6,13 @@ use bevy::{ecs::system::EntityCommands, prelude::*};
 pub struct PitsAndPlanksPlugin;
 impl Plugin for PitsAndPlanksPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, add_hydrators).add_systems(
-            Update,
-            (
-                hide_inactive_planks,
-                initialize_planks_triggers,
-                toggle_planks_triggers,
-                movers_fall_into_pits,
-            ),
-        );
+        app.add_systems(Startup, add_hydrators)
+            .add_systems(
+                PostUpdate,
+                (hide_inactive_planks, initialize_planks_triggers),
+            )
+            .add_systems(PreUpdate, toggle_planks_triggers)
+            .add_systems(Update, movers_fall_into_pits);
     }
 }
 
@@ -45,10 +43,11 @@ pub struct OverPitCounter(pub u16);
 // Hydrators
 
 fn hydrate_planks(entity_commands: &mut EntityCommands, object_data: &ObjectData) {
+    let active = get_property_value_from_object_or_default_b(object_data, "active", true);
     entity_commands.insert((
         Planks {
             id: object_data.id,
-            active: true,
+            active,
         },
         Uninintialized,
     ));
@@ -98,21 +97,18 @@ fn hide_inactive_planks(mut planks_q: Query<(&mut Sprite, &Planks)>) {
 }
 
 fn initialize_planks_triggers(
-    mut planks_q: Query<(Entity, &mut Planks)>,
+    planks_q: Query<(Entity, &Planks)>,
     mut planks_trigger_q: Query<(Entity, &mut PlanksTrigger), With<Uninintialized>>,
     mut commands: Commands,
 ) {
     for (planks_trigger_entity, mut planks_trigger) in planks_trigger_q.iter_mut() {
-        let mut first = true;
         for planks_id in planks_trigger.planks_ids.clone() {
-            for (planks_entity, mut planks) in planks_q.iter_mut() {
+            for (planks_entity, planks) in planks_q.iter() {
                 if planks.id == planks_id as u16 {
-                    planks.active = first;
                     planks_trigger.planks.push(planks_entity);
                     break;
                 }
             }
-            first = false;
         }
 
         commands
@@ -136,7 +132,7 @@ fn toggle_planks_triggers(
                     planks_q.get_mut(planks_trigger.planks[planks_trigger.active_planks_idx])
                 {
                     planks.active = !planks.active;
-                    collider.active = !collider.active;
+                    collider.active = planks.active;
                 }
             } else {
                 if let Ok((mut planks, mut collider)) =
