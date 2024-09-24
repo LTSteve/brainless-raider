@@ -131,25 +131,34 @@ fn toggle_planks_triggers(
     for e in ev_mouse_click.read() {
         let entity = e.0;
         if let Ok(mut planks_trigger) = planks_trigger_q.get_mut(entity) {
-            if let Ok((mut planks, mut collider)) =
-                planks_q.get_mut(planks_trigger.planks[planks_trigger.active_planks_idx])
-            {
-                planks.active = false;
-                collider.active = false;
-            }
+            if planks_trigger.planks.len() == 1 {
+                if let Ok((mut planks, mut collider)) =
+                    planks_q.get_mut(planks_trigger.planks[planks_trigger.active_planks_idx])
+                {
+                    planks.active = !planks.active;
+                    collider.active = !collider.active;
+                }
+            } else {
+                if let Ok((mut planks, mut collider)) =
+                    planks_q.get_mut(planks_trigger.planks[planks_trigger.active_planks_idx])
+                {
+                    planks.active = false;
+                    collider.active = false;
+                }
 
-            planks_trigger.active_planks_idx =
-                (planks_trigger.active_planks_idx + 1) % planks_trigger.planks.len();
+                planks_trigger.active_planks_idx =
+                    (planks_trigger.active_planks_idx + 1) % planks_trigger.planks.len();
 
-            if let Ok((mut planks, mut collider)) =
-                planks_q.get_mut(planks_trigger.planks[planks_trigger.active_planks_idx])
-            {
-                planks.active = true;
-                collider.active = true;
-            }
+                if let Ok((mut planks, mut collider)) =
+                    planks_q.get_mut(planks_trigger.planks[planks_trigger.active_planks_idx])
+                {
+                    planks.active = true;
+                    collider.active = true;
+                }
 
-            if let Some(audio_server) = &audio_server {
-                commands.spawn(audio_server.click.create_one_shot());
+                if let Some(audio_server) = &audio_server {
+                    commands.spawn(audio_server.click.create_one_shot());
+                }
             }
         }
     }

@@ -122,7 +122,7 @@ pub fn on_adventurer_exit_collide(
 
 pub fn on_mover_portal_collide(
     mut ev_collision_enter: EventReader<CollisionEnterEvent>,
-    mut mover_q: Query<(&mut Mover, &mut Transform)>,
+    mut mover_q: Query<(&mut Mover)>,
     portal_q: Query<&EnterPortal>,
     exit_portal_q: Query<(&Transform, &ExitPortal), Without<Mover>>,
     audio_server: Option<Res<AudioServer>>,
@@ -131,19 +131,19 @@ pub fn on_mover_portal_collide(
     for e in ev_collision_enter.read() {
         let (entity1, entity2) = align_entities(e.0, e.1, &mover_q);
 
-        if let (Ok((mut mover, mut mover_transform)), Ok(portal)) =
-            (mover_q.get_mut(entity1), portal_q.get(entity2))
-        {
+        if let (Ok(mut mover), Ok(portal)) = (mover_q.get_mut(entity1), portal_q.get(entity2)) {
             if let Some(exit_entity) = portal.exit_portal {
                 if let Ok((exit_transform, exit_portal)) = exit_portal_q.get(exit_entity) {
-                    mover_transform.translation = exit_transform.translation;
-                    mover.coord = IVec2::new(
+                    let teleport_start_coord = mover.target;
+                    let teleport_end_coord = IVec2::new(
                         pos_to_coord(exit_transform.translation.x) as i32,
                         pos_to_coord(exit_transform.translation.y) as i32,
                     );
+
+                    mover.coord = teleport_start_coord;
+                    mover.target = teleport_end_coord;
                     mover.dir = exit_portal.exit_dir;
-                    mover.target = mover.coord + mover.dir;
-                    mover.move_percent = 0.0;
+                    mover.move_percent = -(1.0 - mover.move_percent); // :D
 
                     if let Some(audio_server) = &audio_server {
                         commands.spawn(audio_server.portal.create_one_shot());

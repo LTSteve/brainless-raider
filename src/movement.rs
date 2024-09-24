@@ -86,7 +86,7 @@ pub fn move_movers(
 
         if mover.move_percent == 1.0 {
             mover.move_percent = 0.0;
-            mover.coord = mover.coord + mover.dir;
+            mover.coord = mover.target;
 
             let forward = mover.dir;
             let side = rotate_dir(mover.dir, mover.clockwise);
