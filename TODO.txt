@@ -8,8 +8,14 @@ X Pause Button
 
 UI
 X Death -> Respawn
-Lives - Game Over
-Treasure Tracker
+X Lives - Game Over
+X Treasure Tracker
+
+The Real Tiled-as-scene experience
+Tool Sprite (editor only)
+Camera-as-Component
+Background-music-as-Component
+Label-as-component
 Click to start
 
 Flavor
@@ -17,3 +23,4 @@ Falling into pits animations
 Pixel Perfect
 Spinning Treasure
 BUG: Adventurer clips under exit?
+UI Scales with window size

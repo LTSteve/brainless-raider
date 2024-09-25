@@ -1,3 +1,4 @@
+use bevy::ecs::system::EntityCommands;
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
 use bevy::window::PrimaryWindow;
@@ -11,11 +12,14 @@ const LABEL_PADDING: f32 = 10.0;
 pub const TEXT_COLOR: &str = "C5CCB8";
 pub const SUCCESS_COLOR: &str = "6EAA78";
 
+const TOOL_PROPERTY: &str = "_tool";
+
 // Plugin
 pub struct ScenePlugin;
 impl Plugin for ScenePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<SceneState>()
+            .add_systems(Startup, add_hydrators)
             .add_systems(OnEnter(MapLoadState::Done), setup_scene)
             .add_systems(
                 OnEnter(SceneState::Transitioning),
@@ -36,6 +40,9 @@ pub struct LivesLabel;
 #[derive(Debug, Component)]
 pub struct TreasuresLabel;
 
+#[derive(Debug, Component)]
+pub struct Tool;
+
 // States
 
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
@@ -45,7 +52,17 @@ pub enum SceneState {
     Transitioning,
 }
 
+// Hydrators
+
+pub fn hydrate_camera(entity_commands: &mut EntityCommands, _: &ObjectData) {
+    entity_commands.insert((Camera2dBundle::default(), NoTearDown)); // TODO: set up NoTearDown as a hydratable tag
+}
+
 // Systems
+
+fn add_hydrators(mut hydrators: ResMut<ComponentHydrators>) {
+    hydrators.register_hydrator("Camera2dBundle", hydrate_camera);
+}
 
 fn tear_down_scene(
     mut commands: Commands,
@@ -72,7 +89,7 @@ fn setup_scene(
 
     if let Err(err) = camera_query.get_single() {
         if let bevy::ecs::query::QuerySingleError::NoEntities(_) = err {
-            commands.spawn((Camera2dBundle::default(), NoTearDown));
+            //commands.spawn((Camera2dBundle::default(), NoTearDown));
 
             // This is a little dirty
 
@@ -183,7 +200,19 @@ fn setup_scene(
             index: obj.sprite_idx as usize - 1,
         };
 
-        let mut entity_commands = commands.spawn((sprite_bundle, texture_atlas));
+        let tool_property = obj
+            .properties
+            .iter()
+            .find(|prop| prop.name == TOOL_PROPERTY);
+        let is_tool = tool_property.is_some() && tool_property.unwrap().value_b;
+
+        let mut entity_commands = commands.spawn(());
+
+        if is_tool {
+            entity_commands.insert(Tool);
+        } else {
+            entity_commands.insert((sprite_bundle, texture_atlas));
+        }
 
         let components_property = obj.properties.iter().find(|prop| prop.name == "Components");
 

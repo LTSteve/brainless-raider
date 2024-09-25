@@ -186,18 +186,18 @@ fn while_loading(
     for map_handle in map_handles.maps.iter() {
         match map_assets.get(map_handle) {
             None => {
-                println!("loading...");
+                println!("loading maps...");
                 return;
             }
             Some(map_data) => {
                 match spritesheet_assets.get(&map_data.sprite_sheet) {
                     None => {
-                        println!("loading...");
+                        println!("loading spritesheets...");
                         return;
                     }
                     Some(spritesheet) => match image_assets.get(&spritesheet.sprite) {
                         None => {
-                            println!("loading...");
+                            println!("loading images...");
                             return;
                         }
                         _ => {}
@@ -206,17 +206,17 @@ fn while_loading(
                 for o_ref in &map_data.objects {
                     match template_assets.get(&o_ref.template) {
                         None => {
-                            println!("loading...");
+                            println!("loading templates...");
                             return;
                         }
                         Some(template) => match spritesheet_assets.get(&template.sprite_sheet) {
                             None => {
-                                println!("loading...");
+                                println!("loading spritesheets...");
                                 return;
                             }
                             Some(spritesheet) => match image_assets.get(&spritesheet.sprite) {
                                 None => {
-                                    println!("loading...");
+                                    println!("loading images...");
                                     return;
                                 }
                                 _ => {}

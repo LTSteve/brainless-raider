@@ -3,12 +3,12 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "maps/tutorial/2.tmx",
+    "activeFile": "sprites.tsx",
     "expandedProjectPaths": [
-        "maps",
+        "maps/tutorial",
         ".",
         "templates",
-        "maps/tutorial"
+        "maps"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -38,11 +38,11 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 3,
+            "scale": 4,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 145,
-                "y": 219
+                "x": 239.875,
+                "y": 240
             }
         },
         "maps/tutorial/3.tmx": {
@@ -70,7 +70,7 @@
         }
     },
     "last.imagePath": "C:/Users/Steth/Desktop/Projects/BrainlessRaider/res",
-    "last.objectTemplatePath": "C:/Users/Steth/Desktop/Projects/BrainlessRaider/res/templates",
+    "last.objectTemplatePath": "/home/shtev/source/brainless-raider/res/templates",
     "map.height": 30,
     "map.lastUsedFormat": "tmx",
     "map.tileHeight": 16,
@@ -84,14 +84,14 @@
         "maps/tutorial/4.tmx"
     ],
     "project": "brainlessraider.tiled-project",
-    "property.type": "object",
+    "property.type": "bool",
     "recentFiles": [
         "sprites.tsx",
-        "maps/tutorial/0.tmx",
-        "maps/tutorial/1.tmx",
         "maps/tutorial/4.tmx",
         "maps/tutorial/3.tmx",
-        "maps/tutorial/2.tmx"
+        "maps/tutorial/2.tmx",
+        "maps/tutorial/1.tmx",
+        "maps/tutorial/0.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
