@@ -1,6 +1,12 @@
 use bevy::prelude::*;
+use bevy::sprite::Anchor;
+use bevy::window::PrimaryWindow;
 
 use crate::*;
+
+// Constants
+
+const LABEL_PADDING: f32 = 10.0;
 
 // Plugin
 pub struct ScenePlugin;
@@ -18,6 +24,9 @@ impl Plugin for ScenePlugin {
 // Components
 #[derive(Debug, Component)]
 pub struct NoTearDown;
+
+#[derive(Debug, Component)]
+pub struct LivesLabel;
 
 // States
 
@@ -47,13 +56,55 @@ fn setup_scene(
     audio_server: Option<Res<AudioServer>>,
     active_sfx_query: Query<&AudioSink>,
     entity_hydrator: Res<ComponentHydrators>,
+    window_query: Query<&Window, With<PrimaryWindow>>,
 ) {
     let map = &map_server.maps[map_server.map_idx];
     let texture = &map.sprite_sheet.sprite;
+    let window = window_query.get_single().expect("Couldn't find window");
 
     if let Err(err) = camera_query.get_single() {
         if let bevy::ecs::query::QuerySingleError::NoEntities(_) = err {
             commands.spawn((Camera2dBundle::default(), NoTearDown));
+
+            // This is a little dirty
+
+            /*
+
+            /// The maximum width and height of the text.
+            text_2d_bounds: Text2dBounds,
+            /// The transform of the text.
+            transform: Transform,
+            /// The global transform of the text.
+            global_transform: GlobalTransform,
+            /// Contains the size of the text and its glyph's position and scale data. Generated via [`TextPipeline::queue_text`]
+            text_layout_info: TextLayoutInfo,
+            */
+
+            let text_style = TextStyle {
+                font_size: 60.0,
+                ..Default::default()
+            };
+
+            commands.spawn((
+                Text2dBundle {
+                    text: Text::from_sections([
+                        TextSection::new("Lives ", text_style.clone()),
+                        TextSection::new(MAX_LIVES.to_string(), text_style),
+                    ]),
+                    text_anchor: Anchor::TopRight,
+                    transform: Transform {
+                        translation: Vec3::new(
+                            window.width() / 2.0 - LABEL_PADDING,
+                            window.height() / 2.0 - LABEL_PADDING,
+                            0.0,
+                        ),
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+                LivesLabel,
+                NoTearDown,
+            ));
         }
     }
 

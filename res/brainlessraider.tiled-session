@@ -5,8 +5,8 @@
     },
     "activeFile": "maps/tutorial/2.tmx",
     "expandedProjectPaths": [
-        ".",
         "maps",
+        ".",
         "templates",
         "maps/tutorial"
     ],
@@ -19,8 +19,8 @@
             "scale": 5.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 240,
-                "y": 239.90909090909093
+                "x": 247.90909090909093,
+                "y": 240
             }
         },
         "maps/tutorial/1.tmx": {
@@ -30,19 +30,19 @@
             "scale": 5.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 305.27272727272725,
-                "y": 268.0909090909091
+                "x": 239.90909090909093,
+                "y": 240
             }
         },
         "maps/tutorial/2.tmx": {
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 8,
+            "scale": 3,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 243.75,
-                "y": 261.9375
+                "x": 145,
+                "y": 219
             }
         },
         "maps/tutorial/3.tmx": {
@@ -52,16 +52,16 @@
             "scale": 5.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 254,
-                "y": 277.1818181818182
+                "x": 239.90909090909093,
+                "y": 240
             }
         },
         "maps/tutorial/4.tmx": {
             "scale": 1.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 240,
-                "y": 240.33333333333337
+                "x": 239.66666666666666,
+                "y": 240
             }
         },
         "sprites.tsx": {

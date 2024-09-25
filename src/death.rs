@@ -116,10 +116,16 @@ fn dead_adventurers_respawn() -> impl FnMut(
     ResMut<NextState<SceneState>>,
     ResMut<Lives>,
     ResMut<MapServer>,
+    Query<&mut Text, With<LivesLabel>>,
 ) {
     let mut death_delay = DEATH_DELAY;
 
-    return move |dead_mover_q, time, mut next_state, mut lives, mut map_server| {
+    return move |dead_mover_q,
+                 time,
+                 mut next_state,
+                 mut lives,
+                 mut map_server,
+                 mut lives_label_q| {
         for _ in dead_mover_q.iter() {
             death_delay -= time.delta_seconds();
             if death_delay <= 0.0 {
@@ -131,6 +137,10 @@ fn dead_adventurers_respawn() -> impl FnMut(
                     lives.0 = MAX_LIVES;
                     map_server.map_idx = 0;
                     next_state.set(SceneState::Transitioning);
+                }
+
+                if let Ok(mut lives_label) = lives_label_q.get_single_mut() {
+                    lives_label.sections[1].value = lives.0.to_string();
                 }
             }
         }
