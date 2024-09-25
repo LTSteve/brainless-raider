@@ -1,12 +1,14 @@
 use bevy::prelude::*;
 
-use crate::{coord_to_pos, Mover, SceneState};
+use crate::{
+    coord_to_pos, Adventurer, Mover, SceneState, TreasuresLabel, SUCCESS_COLOR, TEXT_COLOR,
+};
 
 // Plugin
 pub struct TreasureTrainPlugin;
 impl Plugin for TreasureTrainPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, update_treasure_trains)
+        app.add_systems(Update, (update_treasure_trains, update_treasure_count))
             .add_systems(OnEnter(SceneState::Stable), count_total_treasures)
             .insert_resource(TreasureCount {
                 player_treasures: 0,
@@ -85,6 +87,35 @@ fn update_treasure_trains(
             }
             i += 1;
         }
+    }
+}
+
+fn update_treasure_count(
+    mut treasure_count: ResMut<TreasureCount>,
+    treasure_train_q: Query<&TreasureTrain>,
+    adventurer_q: Query<Entity, With<Adventurer>>,
+    mut treasure_label_q: Query<&mut Text, With<TreasuresLabel>>,
+) {
+    if let Ok(mut treasure_label) = treasure_label_q.get_single_mut() {
+        let mut treasures_picked_up: u16 = 0;
+
+        for treasure_train in treasure_train_q.iter() {
+            if let Ok(_) = adventurer_q.get(treasure_train.mover) {
+                treasures_picked_up = treasure_train.treasures.len() as u16;
+            }
+        }
+
+        treasure_count.player_treasures = treasures_picked_up;
+        treasure_label.sections[1].value = treasure_count.player_treasures.to_string();
+
+        let text_color = if treasure_count.player_treasures == treasure_count.map_treasures {
+            Color::hex(SUCCESS_COLOR).expect("invalid color hex")
+        } else {
+            Color::hex(TEXT_COLOR).expect("invalid color hex")
+        };
+
+        treasure_label.sections[0].style.color = text_color;
+        treasure_label.sections[1].style.color = text_color;
     }
 }
 

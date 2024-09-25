@@ -8,6 +8,9 @@ use crate::*;
 
 const LABEL_PADDING: f32 = 10.0;
 
+pub const TEXT_COLOR: &str = "C5CCB8";
+pub const SUCCESS_COLOR: &str = "6EAA78";
+
 // Plugin
 pub struct ScenePlugin;
 impl Plugin for ScenePlugin {
@@ -29,6 +32,9 @@ pub struct NoTearDown;
 
 #[derive(Debug, Component)]
 pub struct LivesLabel;
+
+#[derive(Debug, Component)]
+pub struct TreasuresLabel;
 
 // States
 
@@ -72,6 +78,7 @@ fn setup_scene(
 
             let text_style = TextStyle {
                 font_size: 60.0,
+                color: Color::hex(TEXT_COLOR).expect("invalid hex color"),
                 ..Default::default()
             };
 
@@ -93,6 +100,27 @@ fn setup_scene(
                     ..Default::default()
                 },
                 LivesLabel,
+                NoTearDown,
+            ));
+
+            commands.spawn((
+                Text2dBundle {
+                    text: Text::from_sections([
+                        TextSection::new("Treasures ", text_style.clone()),
+                        TextSection::new(0.to_string(), text_style),
+                    ]),
+                    text_anchor: Anchor::TopLeft,
+                    transform: Transform {
+                        translation: Vec3::new(
+                            -window.width() / 2.0 + LABEL_PADDING,
+                            window.height() / 2.0 - LABEL_PADDING,
+                            0.0,
+                        ),
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+                TreasuresLabel,
                 NoTearDown,
             ));
         }
