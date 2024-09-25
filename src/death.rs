@@ -11,17 +11,28 @@ pub const DEATH_ROTATION: f32 = 90.0;
 
 pub const DEATH_DELAY: f32 = 1.0;
 
+pub const MAX_LIVES: u16 = 3;
+
 // Plugin
 
 pub struct DeathPlugin;
 impl Plugin for DeathPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, movers_die).add_systems(
-            Update,
-            dead_adventurers_respawn().run_if(in_state(PauseState::Running)),
-        );
+        app.add_systems(Update, movers_die)
+            .add_systems(
+                Update,
+                dead_adventurers_respawn()
+                    .run_if(in_state(PauseState::Running))
+                    .run_if(in_state(MapLoadState::Done)),
+            )
+            .insert_resource(Lives(MAX_LIVES));
     }
 }
+
+// Resources
+
+#[derive(Debug, Resource)]
+pub struct Lives(pub u16);
 
 // Components
 
@@ -99,17 +110,28 @@ fn movers_die(
     }
 }
 
-fn dead_adventurers_respawn(
-) -> impl FnMut(Query<Entity, (With<Adventurer>, With<Dead>)>, Res<Time>, ResMut<NextState<SceneState>>)
-{
+fn dead_adventurers_respawn() -> impl FnMut(
+    Query<Entity, (With<Adventurer>, With<Dead>)>,
+    Res<Time>,
+    ResMut<NextState<SceneState>>,
+    ResMut<Lives>,
+    ResMut<MapServer>,
+) {
     let mut death_delay = DEATH_DELAY;
 
-    return move |dead_mover_q, time, mut next_state| {
+    return move |dead_mover_q, time, mut next_state, mut lives, mut map_server| {
         for _ in dead_mover_q.iter() {
             death_delay -= time.delta_seconds();
             if death_delay <= 0.0 {
                 death_delay = DEATH_DELAY;
-                next_state.set(SceneState::Transitioning);
+                if lives.0 > 0 {
+                    lives.0 -= 1;
+                    next_state.set(SceneState::Transitioning);
+                } else {
+                    lives.0 = MAX_LIVES;
+                    map_server.map_idx = 0;
+                    next_state.set(SceneState::Transitioning);
+                }
             }
         }
     };

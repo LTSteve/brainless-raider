@@ -1,10 +1,19 @@
-TODO:
-- BUG: goblinoid exits from wrong side of teleporter
-- BUG: single pit doesn't toggle off
-- BUG: exit sometimes renders over player
-- Pause
-- Player respawn
-- Life count
-- You win screen
-- Treasure count
-- Adventurer picks up treasures on killing goblinoid
+current
+X BUG: Single-Panel Pit Triggers don't work (level 4)
+X BUG: Goblinoid Teleports strangely on level 4
+
+next (bugs, qol)
+X BUG: Pick up treasure when killing Goblinoid
+X Pause Button
+
+UI
+X Death -> Respawn
+Lives - Game Over
+Treasure Tracker
+Click to start
+
+Flavor
+Falling into pits animations
+Pixel Perfect
+Spinning Treasure
+BUG: Adventurer clips under exit?

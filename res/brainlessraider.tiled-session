@@ -5,10 +5,10 @@
     },
     "activeFile": "maps/tutorial/2.tmx",
     "expandedProjectPaths": [
-        "templates",
         ".",
-        "maps/tutorial",
-        "maps"
+        "maps",
+        "templates",
+        "maps/tutorial"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -41,8 +41,8 @@
             "scale": 8,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 243.875,
-                "y": 262.0625
+                "x": 243.75,
+                "y": 261.9375
             }
         },
         "maps/tutorial/3.tmx": {
