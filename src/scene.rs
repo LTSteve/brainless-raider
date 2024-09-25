@@ -16,7 +16,9 @@ impl Plugin for ScenePlugin {
             .add_systems(OnEnter(MapLoadState::Done), setup_scene)
             .add_systems(
                 OnEnter(SceneState::Transitioning),
-                (tear_down_scene, setup_scene).chain(),
+                (tear_down_scene, setup_scene)
+                    .chain()
+                    .run_if(in_state(MapLoadState::Done)),
             );
     }
 }
@@ -32,8 +34,8 @@ pub struct LivesLabel;
 
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
 pub enum SceneState {
-    #[default]
     Stable,
+    #[default]
     Transitioning,
 }
 
@@ -68,18 +70,6 @@ fn setup_scene(
 
             // This is a little dirty
 
-            /*
-
-            /// The maximum width and height of the text.
-            text_2d_bounds: Text2dBounds,
-            /// The transform of the text.
-            transform: Transform,
-            /// The global transform of the text.
-            global_transform: GlobalTransform,
-            /// Contains the size of the text and its glyph's position and scale data. Generated via [`TextPipeline::queue_text`]
-            text_layout_info: TextLayoutInfo,
-            */
-
             let text_style = TextStyle {
                 font_size: 60.0,
                 ..Default::default()
@@ -89,7 +79,7 @@ fn setup_scene(
                 Text2dBundle {
                     text: Text::from_sections([
                         TextSection::new("Lives ", text_style.clone()),
-                        TextSection::new(MAX_LIVES.to_string(), text_style),
+                        TextSection::new(MAX_LIVES.to_string(), text_style.clone()),
                     ]),
                     text_anchor: Anchor::TopRight,
                     transform: Transform {

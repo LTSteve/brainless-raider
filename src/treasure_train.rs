@@ -1,16 +1,30 @@
 use bevy::prelude::*;
 
-use crate::{coord_to_pos, Mover};
+use crate::{coord_to_pos, Mover, SceneState};
 
 // Plugin
 pub struct TreasureTrainPlugin;
 impl Plugin for TreasureTrainPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (update_treasure_trains));
+        app.add_systems(Update, update_treasure_trains)
+            .add_systems(OnEnter(SceneState::Stable), count_total_treasures)
+            .insert_resource(TreasureCount {
+                player_treasures: 0,
+                map_treasures: 0,
+            });
     }
 }
 
+// Resources
+
+#[derive(Debug, Resource)]
+pub struct TreasureCount {
+    pub player_treasures: u16,
+    pub map_treasures: u16,
+}
+
 // Components
+
 #[derive(Debug, Component)]
 pub struct Treasure {
     pub following: Option<Entity>,
@@ -72,4 +86,9 @@ fn update_treasure_trains(
             i += 1;
         }
     }
+}
+
+fn count_total_treasures(treasure_q: Query<&Treasure>, mut treasure_count: ResMut<TreasureCount>) {
+    treasure_count.map_treasures = treasure_q.iter().count() as u16;
+    treasure_count.player_treasures = 0;
 }
