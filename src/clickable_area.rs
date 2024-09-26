@@ -39,7 +39,11 @@ pub struct ClickableArea {
     pub name: String,
 }
 
-pub fn hydrate_clickable_area(entity_commands: &mut EntityCommands, object_data: &ObjectData) {
+pub fn hydrate_clickable_area(
+    entity_commands: &mut EntityCommands,
+    object_data: &ObjectData,
+    _: &World,
+) {
     let radius = get_property_value_from_object_or_default_f(object_data, "radius", 0.5) as f32;
     entity_commands.insert(ClickableArea {
         location: Vec2::new(

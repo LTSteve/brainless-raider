@@ -3,12 +3,12 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "sprites.tsx",
+    "activeFile": "maps/tutorial/2.tmx",
     "expandedProjectPaths": [
-        "maps/tutorial",
         ".",
-        "templates",
-        "maps"
+        "maps",
+        "maps/tutorial",
+        "templates"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -87,11 +87,11 @@
     "property.type": "bool",
     "recentFiles": [
         "sprites.tsx",
+        "maps/tutorial/0.tmx",
+        "maps/tutorial/1.tmx",
         "maps/tutorial/4.tmx",
         "maps/tutorial/3.tmx",
-        "maps/tutorial/2.tmx",
-        "maps/tutorial/1.tmx",
-        "maps/tutorial/0.tmx"
+        "maps/tutorial/2.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

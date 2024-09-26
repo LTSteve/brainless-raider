@@ -41,7 +41,7 @@ pub struct Collider {
     pub active: bool,
 }
 
-pub fn hydrate_collider(entity_commands: &mut EntityCommands, object_data: &ObjectData) {
+pub fn hydrate_collider(entity_commands: &mut EntityCommands, object_data: &ObjectData, _: &World) {
     let radius = get_property_value_from_object_or_default_f(object_data, "collider_radius", 4.0);
     let active = get_property_value_from_object_or_default_b(object_data, "collider_active", true);
 

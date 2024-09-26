@@ -52,7 +52,11 @@ pub struct Teleporter {
 
 // Hydrators
 
-pub fn hydrate_enter_portal(entity_commands: &mut EntityCommands, object_data: &ObjectData) {
+pub fn hydrate_enter_portal(
+    entity_commands: &mut EntityCommands,
+    object_data: &ObjectData,
+    _: &World,
+) {
     let exit_portal_id = get_property_value_from_object_or_default_i(object_data, "exit_portal", 0);
 
     if exit_portal_id == 0 {
@@ -69,7 +73,11 @@ pub fn hydrate_enter_portal(entity_commands: &mut EntityCommands, object_data: &
     ));
 }
 
-pub fn hydrate_exit_portal(entity_commands: &mut EntityCommands, object_data: &ObjectData) {
+pub fn hydrate_exit_portal(
+    entity_commands: &mut EntityCommands,
+    object_data: &ObjectData,
+    _: &World,
+) {
     let x = get_property_value_from_object_or_default_i(object_data, "exit_dir_x", 0);
     let y = get_property_value_from_object_or_default_i(object_data, "exit_dir_y", 0);
 
@@ -80,7 +88,11 @@ pub fn hydrate_exit_portal(entity_commands: &mut EntityCommands, object_data: &O
     });
 }
 
-pub fn hydrate_teleporter(entity_commands: &mut EntityCommands, object_data: &ObjectData) {
+pub fn hydrate_teleporter(
+    entity_commands: &mut EntityCommands,
+    object_data: &ObjectData,
+    _: &World,
+) {
     let enter_portal_id =
         get_property_value_from_object_or_default_i(object_data, "enter_portal", 0);
 

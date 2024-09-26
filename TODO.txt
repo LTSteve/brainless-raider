@@ -10,10 +10,11 @@ UI
 X Death -> Respawn
 X Lives - Game Over
 X Treasure Tracker
-
+(oops same branch)
 The Real Tiled-as-scene experience
-Tool Sprite (editor only)
-Camera-as-Component
+X Tool Sprite (editor only)
+X Camera-as-Component
+X NoTearDown-as-Component
 Background-music-as-Component
 Label-as-component
 Click to start

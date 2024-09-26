@@ -20,10 +20,13 @@ impl Plugin for ScenePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<SceneState>()
             .add_systems(Startup, add_hydrators)
-            .add_systems(OnEnter(MapLoadState::Done), setup_scene)
+            .add_systems(
+                OnEnter(MapLoadState::Done),
+                (setup_scene, post_setup_scene).chain(),
+            )
             .add_systems(
                 OnEnter(SceneState::Transitioning),
-                (tear_down_scene, setup_scene)
+                (tear_down_scene, setup_scene, post_setup_scene)
                     .chain()
                     .run_if(in_state(MapLoadState::Done)),
             );
@@ -31,7 +34,7 @@ impl Plugin for ScenePlugin {
 }
 
 // Components
-#[derive(Debug, Component)]
+#[derive(Debug, Component, Default)]
 pub struct NoTearDown;
 
 #[derive(Debug, Component)]
@@ -54,14 +57,23 @@ pub enum SceneState {
 
 // Hydrators
 
-pub fn hydrate_camera(entity_commands: &mut EntityCommands, _: &ObjectData) {
-    entity_commands.insert((Camera2dBundle::default(), NoTearDown)); // TODO: set up NoTearDown as a hydratable tag
+pub fn hydrate_camera(entity_commands: &mut EntityCommands, _: &ObjectData, _: &World) {
+    entity_commands.insert(Camera2dBundle::default());
+}
+
+pub fn hydrate_backround_loop(entity_commands: &mut EntityCommands, _: &ObjectData, world: &World) {
+    if let Some(audio_server) = world.get_resource::<AudioServer>() {
+        entity_commands.insert(audio_server.dumbraider.create_loop());
+    }
 }
 
 // Systems
 
 fn add_hydrators(mut hydrators: ResMut<ComponentHydrators>) {
-    hydrators.register_hydrator("Camera2dBundle", hydrate_camera);
+    hydrators
+        .register_tag::<NoTearDown>("NoTearDown")
+        .register_hydrator("Camera2dBundle", hydrate_camera)
+        .register_hydrator("BackgroundLoop", hydrate_backround_loop);
 }
 
 fn tear_down_scene(
@@ -76,29 +88,26 @@ fn tear_down_scene(
 fn setup_scene(
     mut commands: Commands,
     map_server: Res<MapServer>,
-    camera_query: Query<&Camera2d>,
-    mut next_state: ResMut<NextState<SceneState>>,
+    lives_label_q: Query<&LivesLabel>,
+    treasures_label_q: Query<&TreasuresLabel>,
     audio_server: Option<Res<AudioServer>>,
     active_sfx_query: Query<&AudioSink>,
     entity_hydrator: Res<ComponentHydrators>,
     window_query: Query<&Window, With<PrimaryWindow>>,
+    world: &World,
 ) {
     let map = &map_server.maps[map_server.map_idx];
     let texture = &map.sprite_sheet.sprite;
     let window = window_query.get_single().expect("Couldn't find window");
 
-    if let Err(err) = camera_query.get_single() {
+    let text_style = TextStyle {
+        font_size: 60.0,
+        color: Color::hex(TEXT_COLOR).expect("invalid hex color"),
+        ..Default::default()
+    };
+
+    if let Err(err) = lives_label_q.get_single() {
         if let bevy::ecs::query::QuerySingleError::NoEntities(_) = err {
-            //commands.spawn((Camera2dBundle::default(), NoTearDown));
-
-            // This is a little dirty
-
-            let text_style = TextStyle {
-                font_size: 60.0,
-                color: Color::hex(TEXT_COLOR).expect("invalid hex color"),
-                ..Default::default()
-            };
-
             commands.spawn((
                 Text2dBundle {
                     text: Text::from_sections([
@@ -119,7 +128,10 @@ fn setup_scene(
                 LivesLabel,
                 NoTearDown,
             ));
-
+        }
+    }
+    if let Err(err) = treasures_label_q.get_single() {
+        if let bevy::ecs::query::QuerySingleError::NoEntities(_) = err {
             commands.spawn((
                 Text2dBundle {
                     text: Text::from_sections([
@@ -218,9 +230,12 @@ fn setup_scene(
 
         if let Some(components_property) = components_property {
             for component_name in String::from(&components_property.value_s).split("|") {
-                entity_hydrator.hydrate_entity(&mut entity_commands, &obj, component_name)
+                entity_hydrator.hydrate_entity(&mut entity_commands, &obj, world, component_name);
             }
         }
     }
+}
+
+fn post_setup_scene(mut next_state: ResMut<NextState<SceneState>>) {
     next_state.set(SceneState::Stable);
 }
