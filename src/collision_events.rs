@@ -118,7 +118,8 @@ pub fn on_adventurer_exit_collide(
                 if let Some(audio_server) = &audio_server {
                     commands.spawn(audio_server.exit.create_one_shot());
                 }
-                map_server.map_idx = (map_server.map_idx + 1) % 5; // TODO: temp
+                map_server.map_idx =
+                    std::cmp::max((map_server.map_idx + 1) % map_server.maps.len(), 1); // TODO: temp
                 next_state.set(SceneState::Transitioning);
             } else {
                 if let Some(audio_server) = &audio_server {

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+ <tileset firstgid="1" source="../sprites.tsx"/>
+ <object gid="10" width="16" height="16">
+  <properties>
+   <property name="Components" value="Button"/>
+   <property name="_tool" type="bool" value="true"/>
+   <property name="anchor" value="Center"/>
+   <property name="text" value="Start"/>
+   <property name="x_offset" type="float" value="0"/>
+   <property name="y_offset" type="float" value="100"/>
+  </properties>
+ </object>
+</template>

@@ -17,7 +17,7 @@ X Camera-as-Component
 X NoTearDown-as-Component
 X Background-music-as-Component
 X Refactor World hydrators (remove world, and move that functionality to a single-call 'initiailze' system, see Pits & Planks)
-Label-as-component
+X Label-as-component
 Click to start
 
 Flavor
@@ -26,3 +26,4 @@ Pixel Perfect
 Spinning Treasure
 BUG: Adventurer clips under exit?
 UI Scales with window size
+Font

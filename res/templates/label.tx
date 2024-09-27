@@ -7,7 +7,6 @@
    <property name="_tool" type="bool" value="true"/>
    <property name="anchor" value="TopRight"/>
    <property name="section_0" value="Lives "/>
-   <property name="section_1" value="3"/>
    <property name="x_offset" type="float" value="15"/>
    <property name="y_offset" type="float" value="15"/>
   </properties>

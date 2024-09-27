@@ -46,6 +46,7 @@ fn main() {
                 .set(ImagePlugin::default_nearest()),
             HydrateComponentsPlugin,
             BRMapPlugin(vec![
+                String::from("maps/tutorial/title.tmx"),
                 String::from("maps/tutorial/2.tmx"),
                 String::from("maps/tutorial/3.tmx"),
                 String::from("maps/tutorial/0.tmx"),
