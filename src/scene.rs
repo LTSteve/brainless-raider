@@ -7,11 +7,6 @@ use crate::*;
 
 // Constants
 
-const LABEL_PADDING: f32 = 10.0;
-
-pub const TEXT_COLOR: &str = "C5CCB8";
-pub const SUCCESS_COLOR: &str = "6EAA78";
-
 const TOOL_PROPERTY: &str = "_tool";
 
 // Plugin
@@ -80,69 +75,10 @@ fn tear_down_scene(
 fn setup_scene(
     mut commands: Commands,
     map_server: Res<MapServer>,
-    lives_label_q: Query<&LivesLabel>,
-    treasures_label_q: Query<&TreasuresLabel>,
     entity_hydrator: Res<ComponentHydrators>,
-    window_query: Query<&Window, With<PrimaryWindow>>,
 ) {
     let map = &map_server.maps[map_server.map_idx];
     let texture = &map.sprite_sheet.sprite;
-    let window = window_query.get_single().expect("Couldn't find window");
-
-    let text_style = TextStyle {
-        font_size: 60.0,
-        color: Color::hex(TEXT_COLOR).expect("invalid hex color"),
-        ..Default::default()
-    };
-
-    if let Err(err) = lives_label_q.get_single() {
-        if let bevy::ecs::query::QuerySingleError::NoEntities(_) = err {
-            commands.spawn((
-                Text2dBundle {
-                    text: Text::from_sections([
-                        TextSection::new("Lives ", text_style.clone()),
-                        TextSection::new(MAX_LIVES.to_string(), text_style.clone()),
-                    ]),
-                    text_anchor: Anchor::TopRight,
-                    transform: Transform {
-                        translation: Vec3::new(
-                            window.width() / 2.0 - LABEL_PADDING,
-                            window.height() / 2.0 - LABEL_PADDING,
-                            0.0,
-                        ),
-                        ..Default::default()
-                    },
-                    ..Default::default()
-                },
-                LivesLabel,
-                NoTearDown,
-            ));
-        }
-    }
-    if let Err(err) = treasures_label_q.get_single() {
-        if let bevy::ecs::query::QuerySingleError::NoEntities(_) = err {
-            commands.spawn((
-                Text2dBundle {
-                    text: Text::from_sections([
-                        TextSection::new("Treasures ", text_style.clone()),
-                        TextSection::new(0.to_string(), text_style),
-                    ]),
-                    text_anchor: Anchor::TopLeft,
-                    transform: Transform {
-                        translation: Vec3::new(
-                            -window.width() / 2.0 + LABEL_PADDING,
-                            window.height() / 2.0 - LABEL_PADDING,
-                            0.0,
-                        ),
-                        ..Default::default()
-                    },
-                    ..Default::default()
-                },
-                TreasuresLabel,
-                NoTearDown,
-            ));
-        }
-    }
 
     for idx in 0..map.data.len() {
         if map.data[idx] == 0 {

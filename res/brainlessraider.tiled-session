@@ -84,7 +84,7 @@
         "maps/tutorial/4.tmx"
     ],
     "project": "brainlessraider.tiled-project",
-    "property.type": "bool",
+    "property.type": "float",
     "recentFiles": [
         "sprites.tsx",
         "maps/tutorial/0.tmx",
