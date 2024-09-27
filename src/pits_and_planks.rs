@@ -42,7 +42,7 @@ pub struct OverPitCounter(pub u16);
 
 // Hydrators
 
-fn hydrate_planks(entity_commands: &mut EntityCommands, object_data: &ObjectData, _: &World) {
+fn hydrate_planks(entity_commands: &mut EntityCommands, object_data: &ObjectData) {
     let active = get_property_value_from_object_or_default_b(object_data, "active", true);
     entity_commands.insert((
         Planks {
@@ -53,11 +53,7 @@ fn hydrate_planks(entity_commands: &mut EntityCommands, object_data: &ObjectData
     ));
 }
 
-fn hydrate_planks_trigger(
-    entity_commands: &mut EntityCommands,
-    object_data: &ObjectData,
-    _: &World,
-) {
+fn hydrate_planks_trigger(entity_commands: &mut EntityCommands, object_data: &ObjectData) {
     let mut planks_ids = Vec::<i64>::new();
     let mut idx = 1;
 

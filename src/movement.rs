@@ -40,7 +40,7 @@ pub struct Mover {
     pub clockwise: bool,
 }
 
-pub fn hydrate_mover(entity_commands: &mut EntityCommands, object_data: &ObjectData, _: &World) {
+pub fn hydrate_mover(entity_commands: &mut EntityCommands, object_data: &ObjectData) {
     let x = get_property_value_from_object_or_default_i(object_data, "dir_x", 0);
     let y = get_property_value_from_object_or_default_i(object_data, "dir_y", 0);
     let clockwise = get_property_value_from_object_or_default_b(object_data, "clockwise", false);

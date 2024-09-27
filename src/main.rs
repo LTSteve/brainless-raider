@@ -14,6 +14,7 @@ mod scene;
 mod tags;
 mod teleporter;
 mod treasure_train;
+mod ui;
 
 use audio_server::*;
 use bevy::prelude::*;
@@ -31,6 +32,7 @@ use scene::*;
 use tags::*;
 use teleporter::*;
 use treasure_train::*;
+use ui::*;
 
 fn main() {
     App::new()
@@ -63,6 +65,7 @@ fn main() {
             PitsAndPlanksPlugin,
             DeathPlugin,
             PausePlugin,
+            UIPlugin,
         ))
         .run();
 }

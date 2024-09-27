@@ -15,7 +15,8 @@ The Real Tiled-as-scene experience
 X Tool Sprite (editor only)
 X Camera-as-Component
 X NoTearDown-as-Component
-Background-music-as-Component
+X Background-music-as-Component
+Refactor World hydrators (remove world, and move that functionality to a single-call 'initiailze' system, see Pits & Planks)
 Label-as-component
 Click to start
 

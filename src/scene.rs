@@ -34,17 +34,15 @@ impl Plugin for ScenePlugin {
 }
 
 // Components
+
 #[derive(Debug, Component, Default)]
 pub struct NoTearDown;
 
 #[derive(Debug, Component)]
-pub struct LivesLabel;
+struct Tool;
 
-#[derive(Debug, Component)]
-pub struct TreasuresLabel;
-
-#[derive(Debug, Component)]
-pub struct Tool;
+#[derive(Debug, Component, Default)]
+pub struct BackgroundLoop;
 
 // States
 
@@ -57,14 +55,8 @@ pub enum SceneState {
 
 // Hydrators
 
-pub fn hydrate_camera(entity_commands: &mut EntityCommands, _: &ObjectData, _: &World) {
+pub fn hydrate_camera(entity_commands: &mut EntityCommands, _: &ObjectData) {
     entity_commands.insert(Camera2dBundle::default());
-}
-
-pub fn hydrate_backround_loop(entity_commands: &mut EntityCommands, _: &ObjectData, world: &World) {
-    if let Some(audio_server) = world.get_resource::<AudioServer>() {
-        entity_commands.insert(audio_server.dumbraider.create_loop());
-    }
 }
 
 // Systems
@@ -72,8 +64,8 @@ pub fn hydrate_backround_loop(entity_commands: &mut EntityCommands, _: &ObjectDa
 fn add_hydrators(mut hydrators: ResMut<ComponentHydrators>) {
     hydrators
         .register_tag::<NoTearDown>("NoTearDown")
-        .register_hydrator("Camera2dBundle", hydrate_camera)
-        .register_hydrator("BackgroundLoop", hydrate_backround_loop);
+        .register_tag::<(BackgroundLoop, Uninintialized)>("BackgroundLoop")
+        .register_hydrator("Camera2dBundle", hydrate_camera);
 }
 
 fn tear_down_scene(
@@ -90,11 +82,8 @@ fn setup_scene(
     map_server: Res<MapServer>,
     lives_label_q: Query<&LivesLabel>,
     treasures_label_q: Query<&TreasuresLabel>,
-    audio_server: Option<Res<AudioServer>>,
-    active_sfx_query: Query<&AudioSink>,
     entity_hydrator: Res<ComponentHydrators>,
     window_query: Query<&Window, With<PrimaryWindow>>,
-    world: &World,
 ) {
     let map = &map_server.maps[map_server.map_idx];
     let texture = &map.sprite_sheet.sprite;
@@ -152,15 +141,6 @@ fn setup_scene(
                 TreasuresLabel,
                 NoTearDown,
             ));
-        }
-    }
-
-    // TODO: temp, realistically this will go in the menu / initialization section
-    if let Some(audio_server) = audio_server {
-        if let Err(err) = active_sfx_query.get_single() {
-            if let bevy::ecs::query::QuerySingleError::NoEntities(_) = err {
-                commands.spawn(audio_server.dumbraider.create_loop());
-            }
         }
     }
 
@@ -230,7 +210,7 @@ fn setup_scene(
 
         if let Some(components_property) = components_property {
             for component_name in String::from(&components_property.value_s).split("|") {
-                entity_hydrator.hydrate_entity(&mut entity_commands, &obj, world, component_name);
+                entity_hydrator.hydrate_entity(&mut entity_commands, &obj, component_name);
             }
         }
     }

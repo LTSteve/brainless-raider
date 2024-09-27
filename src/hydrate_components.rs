@@ -12,7 +12,7 @@ impl Plugin for HydrateComponentsPlugin {
 
 #[derive(Clone, Debug, Resource)]
 pub struct ComponentHydrators {
-    hydrators: HashMap<&'static str, fn(&mut EntityCommands, &ObjectData, &World)>,
+    hydrators: HashMap<&'static str, fn(&mut EntityCommands, &ObjectData)>,
 }
 
 impl ComponentHydrators {
@@ -25,7 +25,7 @@ impl ComponentHydrators {
     pub fn register_hydrator(
         &mut self,
         component_name: &'static str,
-        func: fn(&mut EntityCommands, &ObjectData, &World),
+        func: fn(&mut EntityCommands, &ObjectData),
     ) -> &mut Self {
         self.hydrators.insert(component_name, func);
         return self;
@@ -33,7 +33,7 @@ impl ComponentHydrators {
 
     pub fn register_tag<T>(&mut self, component_name: &'static str) -> &mut Self
     where
-        T: Default + Component,
+        T: Default + Bundle,
     {
         self.hydrators.insert(component_name, hydrate_tag::<T>);
         return self;
@@ -43,12 +43,11 @@ impl ComponentHydrators {
         &self,
         entity_commands: &mut EntityCommands,
         object_data: &ObjectData,
-        world: &World,
         component_name: &str,
     ) {
         match self.hydrators.iter().find(|kvp| kvp.0 == &component_name) {
             Some(kvp) => {
-                kvp.1(entity_commands, object_data, world);
+                kvp.1(entity_commands, object_data);
             }
             None => {
                 println!(
@@ -60,9 +59,9 @@ impl ComponentHydrators {
     }
 }
 
-fn hydrate_tag<T>(entity_commands: &mut EntityCommands, _: &ObjectData, _: &World)
+fn hydrate_tag<T>(entity_commands: &mut EntityCommands, _: &ObjectData)
 where
-    T: Default + Component,
+    T: Default + Bundle,
 {
     entity_commands.insert(T::default());
 }
