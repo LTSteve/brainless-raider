@@ -1,11 +1,3 @@
-current
-X BUG: Single-Panel Pit Triggers don't work (level 4)
-X BUG: Goblinoid Teleports strangely on level 4
-
-next (bugs, qol)
-X BUG: Pick up treasure when killing Goblinoid
-X Pause Button
-
 UI
 X Death -> Respawn
 X Lives - Game Over
@@ -18,7 +10,7 @@ X NoTearDown-as-Component
 X Background-music-as-Component
 X Refactor World hydrators (remove world, and move that functionality to a single-call 'initiailze' system, see Pits & Planks)
 X Label-as-component
-Click to start
+X Click to start
 
 Flavor
 Falling into pits animations
@@ -27,3 +19,4 @@ Spinning Treasure
 BUG: Adventurer clips under exit?
 UI Scales with window size
 Font
+BUG: Cursor hover in splash screen
