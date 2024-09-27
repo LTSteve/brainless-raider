@@ -67,7 +67,6 @@ pub fn on_mover_treasure_collide(
     mut treasure_q: Query<(Entity, &mut Collider), With<Treasure>>,
     audio_server: Option<Res<AudioServer>>,
     mut treasure_train_q: Query<&mut TreasureTrain>,
-    //mut next_state: ResMut<NextState<PauseState>>,
 ) {
     for e in ev_collision_enter.read() {
         let (entity1, entity2) = align_entities(e.0, e.1, &mover_q);
@@ -98,8 +97,6 @@ pub fn on_mover_treasure_collide(
                     target_spots: vec![mover.coord],
                 });
             }
-
-            //next_state.set(PauseState::Paused);
         }
     }
 }
@@ -107,20 +104,29 @@ pub fn on_mover_treasure_collide(
 pub fn on_adventurer_exit_collide(
     mut commands: Commands,
     mut ev_collision_enter: EventReader<CollisionEnterEvent>,
-    adventurer_q: Query<&Adventurer>,
+    adventurer_q: Query<Entity, With<Adventurer>>,
     exit_q: Query<&Exit>,
     audio_server: Option<Res<AudioServer>>,
     mut next_state: ResMut<NextState<SceneState>>,
     mut map_server: ResMut<MapServer>,
+    treasure_count: ResMut<TreasureCount>,
 ) {
     for e in ev_collision_enter.read() {
         let (entity1, entity2) = align_entities(e.0, e.1, &adventurer_q);
-        if let (Ok(_), Ok(_)) = (adventurer_q.get(entity1), exit_q.get(entity2)) {
-            if let Some(audio_server) = &audio_server {
-                commands.spawn(audio_server.exit.create_one_shot());
+        if let (Ok(entity), Ok(_)) = (adventurer_q.get(entity1), exit_q.get(entity2)) {
+            if treasure_count.map_treasures == treasure_count.player_treasures {
+                if let Some(audio_server) = &audio_server {
+                    commands.spawn(audio_server.exit.create_one_shot());
+                }
+                map_server.map_idx =
+                    std::cmp::max((map_server.map_idx + 1) % map_server.maps.len(), 1); // TODO: temp
+                next_state.set(SceneState::Transitioning);
+            } else {
+                if let Some(audio_server) = &audio_server {
+                    commands.spawn(audio_server.die.create_one_shot());
+                }
+                commands.entity(entity).insert(Dead { killed_by: None });
             }
-            map_server.map_idx = (map_server.map_idx + 1) % 5; // TODO: temp
-            next_state.set(SceneState::Transitioning);
         }
     }
 }

@@ -11,5 +11,5 @@ pub struct Exit;
 
 // Generic
 
-#[derive(Debug, Component)]
+#[derive(Debug, Component, Default)]
 pub struct Uninintialized;

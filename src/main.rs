@@ -14,6 +14,7 @@ mod scene;
 mod tags;
 mod teleporter;
 mod treasure_train;
+mod ui;
 
 use audio_server::*;
 use bevy::prelude::*;
@@ -31,6 +32,7 @@ use scene::*;
 use tags::*;
 use teleporter::*;
 use treasure_train::*;
+use ui::*;
 
 fn main() {
     App::new()
@@ -44,8 +46,9 @@ fn main() {
                 .set(ImagePlugin::default_nearest()),
             HydrateComponentsPlugin,
             BRMapPlugin(vec![
-                String::from("maps/tutorial/3.tmx"),
+                String::from("maps/tutorial/title.tmx"),
                 String::from("maps/tutorial/2.tmx"),
+                String::from("maps/tutorial/3.tmx"),
                 String::from("maps/tutorial/0.tmx"),
                 String::from("maps/tutorial/1.tmx"),
                 String::from("maps/tutorial/4.tmx"),
@@ -63,6 +66,7 @@ fn main() {
             PitsAndPlanksPlugin,
             DeathPlugin,
             PausePlugin,
+            UIPlugin,
         ))
         .run();
 }

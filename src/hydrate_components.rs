@@ -33,7 +33,7 @@ impl ComponentHydrators {
 
     pub fn register_tag<T>(&mut self, component_name: &'static str) -> &mut Self
     where
-        T: Default + Component,
+        T: Default + Bundle,
     {
         self.hydrators.insert(component_name, hydrate_tag::<T>);
         return self;
@@ -61,7 +61,7 @@ impl ComponentHydrators {
 
 fn hydrate_tag<T>(entity_commands: &mut EntityCommands, _: &ObjectData)
 where
-    T: Default + Component,
+    T: Default + Bundle,
 {
     entity_commands.insert(T::default());
 }

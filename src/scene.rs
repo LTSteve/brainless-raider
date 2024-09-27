@@ -1,34 +1,67 @@
+use bevy::ecs::system::EntityCommands;
 use bevy::prelude::*;
+use bevy::sprite::Anchor;
+use bevy::window::PrimaryWindow;
 
 use crate::*;
+
+// Constants
+
+const TOOL_PROPERTY: &str = "_tool";
 
 // Plugin
 pub struct ScenePlugin;
 impl Plugin for ScenePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<SceneState>()
-            .add_systems(OnEnter(MapLoadState::Done), setup_scene)
+            .add_systems(Startup, add_hydrators)
+            .add_systems(
+                OnEnter(MapLoadState::Done),
+                (setup_scene, post_setup_scene).chain(),
+            )
             .add_systems(
                 OnEnter(SceneState::Transitioning),
-                (tear_down_scene, setup_scene).chain(),
+                (tear_down_scene, setup_scene, post_setup_scene)
+                    .chain()
+                    .run_if(in_state(MapLoadState::Done)),
             );
     }
 }
 
 // Components
-#[derive(Debug, Component)]
+
+#[derive(Debug, Component, Default)]
 pub struct NoTearDown;
+
+#[derive(Debug, Component)]
+struct Tool;
+
+#[derive(Debug, Component, Default)]
+pub struct BackgroundLoop;
 
 // States
 
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
 pub enum SceneState {
-    #[default]
     Stable,
+    #[default]
     Transitioning,
 }
 
+// Hydrators
+
+pub fn hydrate_camera(entity_commands: &mut EntityCommands, _: &ObjectData) {
+    entity_commands.insert(Camera2dBundle::default());
+}
+
 // Systems
+
+fn add_hydrators(mut hydrators: ResMut<ComponentHydrators>) {
+    hydrators
+        .register_tag::<NoTearDown>("NoTearDown")
+        .register_tag::<(BackgroundLoop, Uninintialized)>("BackgroundLoop")
+        .register_hydrator("Camera2dBundle", hydrate_camera);
+}
 
 fn tear_down_scene(
     mut commands: Commands,
@@ -42,29 +75,10 @@ fn tear_down_scene(
 fn setup_scene(
     mut commands: Commands,
     map_server: Res<MapServer>,
-    camera_query: Query<&Camera2d>,
-    mut next_state: ResMut<NextState<SceneState>>,
-    audio_server: Option<Res<AudioServer>>,
-    active_sfx_query: Query<&AudioSink>,
     entity_hydrator: Res<ComponentHydrators>,
 ) {
     let map = &map_server.maps[map_server.map_idx];
     let texture = &map.sprite_sheet.sprite;
-
-    if let Err(err) = camera_query.get_single() {
-        if let bevy::ecs::query::QuerySingleError::NoEntities(_) = err {
-            commands.spawn((Camera2dBundle::default(), NoTearDown));
-        }
-    }
-
-    // TODO: temp, realistically this will go in the menu / initialization section
-    if let Some(audio_server) = audio_server {
-        if let Err(err) = active_sfx_query.get_single() {
-            if let bevy::ecs::query::QuerySingleError::NoEntities(_) = err {
-                commands.spawn(audio_server.dumbraider.create_loop());
-            }
-        }
-    }
 
     for idx in 0..map.data.len() {
         if map.data[idx] == 0 {
@@ -114,15 +128,30 @@ fn setup_scene(
             index: obj.sprite_idx as usize - 1,
         };
 
-        let mut entity_commands = commands.spawn((sprite_bundle, texture_atlas));
+        let tool_property = obj
+            .properties
+            .iter()
+            .find(|prop| prop.name == TOOL_PROPERTY);
+        let is_tool = tool_property.is_some() && tool_property.unwrap().value_b;
+
+        let mut entity_commands = commands.spawn(());
+
+        if is_tool {
+            entity_commands.insert(Tool);
+        } else {
+            entity_commands.insert((sprite_bundle, texture_atlas));
+        }
 
         let components_property = obj.properties.iter().find(|prop| prop.name == "Components");
 
         if let Some(components_property) = components_property {
             for component_name in String::from(&components_property.value_s).split("|") {
-                entity_hydrator.hydrate_entity(&mut entity_commands, &obj, component_name)
+                entity_hydrator.hydrate_entity(&mut entity_commands, &obj, component_name);
             }
         }
     }
+}
+
+fn post_setup_scene(mut next_state: ResMut<NextState<SceneState>>) {
     next_state.set(SceneState::Stable);
 }
