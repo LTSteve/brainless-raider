@@ -52,6 +52,7 @@ pub fn on_adventurer_goblinoid_collide(
         {
             commands.entity(goblinoid_entity).insert(Dead {
                 killed_by: Some(adventurer_entity),
+                fell_into_pit: false,
             });
             if let Some(audio_server) = &audio_server {
                 commands.spawn(audio_server.kill.create_one_shot());
@@ -125,7 +126,10 @@ pub fn on_adventurer_exit_collide(
                 if let Some(audio_server) = &audio_server {
                     commands.spawn(audio_server.die.create_one_shot());
                 }
-                commands.entity(entity).insert(Dead { killed_by: None });
+                commands.entity(entity).insert(Dead {
+                    killed_by: None,
+                    fell_into_pit: false,
+                });
             }
         }
     }
