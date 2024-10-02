@@ -19,8 +19,8 @@
             "scale": 5.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 311.0909090909091,
-                "y": 268.0909090909091
+                "x": 240,
+                "y": 239.90909090909093
             }
         },
         "maps/tutorial/1.tmx": {
@@ -30,8 +30,8 @@
             "scale": 5.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 303.0909090909091,
-                "y": 268.0909090909091
+                "x": 240,
+                "y": 239.90909090909093
             }
         },
         "maps/tutorial/2.tmx": {
@@ -52,16 +52,16 @@
             "scale": 5.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 303.0909090909091,
-                "y": 268.0909090909091
+                "x": 240,
+                "y": 239.90909090909093
             }
         },
         "maps/tutorial/4.tmx": {
             "scale": 1.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 471.33333333333326,
-                "y": 342.99999999999994
+                "x": 240,
+                "y": 240.33333333333337
             }
         },
         "maps/tutorial/title.tmx": {

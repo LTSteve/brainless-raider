@@ -13,7 +13,7 @@ X Label-as-component
 X Click to start
 
 Flavor
-Falling into pits animations
+X Falling into pits animations
 BUG: Game Over causes issues
 Pixel Perfect
 Spinning Treasure

@@ -56,7 +56,10 @@ impl PlayableAudioSource {
                     ..default()
                 },
             },
-            NoTearDown,
+            NoTearDown {
+                id: "sfx".into(),
+                ignore_duplicates: true,
+            },
         )
     }
     pub fn create_loop(&self) -> (AudioBundle, NoTearDown) {
@@ -68,7 +71,10 @@ impl PlayableAudioSource {
                     ..default()
                 },
             },
-            NoTearDown,
+            NoTearDown {
+                id: "loop".into(),
+                ignore_duplicates: false,
+            },
         )
     }
 }
