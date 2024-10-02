@@ -14,8 +14,9 @@ X Click to start
 
 Flavor
 X Falling into pits animations
-BUG: Game Over causes issues
+X BUG: Game Over causes issues
 Pixel Perfect
+BUG~: Module Tree
 Spinning Treasure
 BUG: Adventurer clips under exit?
 UI Scales with window size

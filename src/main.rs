@@ -10,6 +10,7 @@ mod map_loader;
 mod movement;
 mod pause;
 mod pits_and_planks;
+mod pixel_perfect_camera;
 mod scene;
 mod tags;
 mod teleporter;
@@ -28,6 +29,7 @@ use hydrate_components::*;
 use movement::*;
 use pause::*;
 use pits_and_planks::*;
+use pixel_perfect_camera::*;
 use scene::*;
 use tags::*;
 use teleporter::*;
@@ -66,7 +68,7 @@ fn main() {
             PitsAndPlanksPlugin,
             DeathPlugin,
             PausePlugin,
-            UIPlugin,
         ))
+        .insert_resource(Msaa::Off)
         .run();
 }

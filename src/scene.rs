@@ -1,5 +1,9 @@
 use bevy::ecs::system::EntityCommands;
 use bevy::prelude::*;
+use bevy::render::camera::RenderTarget;
+use bevy::render::render_resource::{
+    Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
+};
 use bevy::sprite::Anchor;
 use bevy::window::PrimaryWindow;
 
@@ -14,7 +18,7 @@ pub struct ScenePlugin;
 impl Plugin for ScenePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<SceneState>()
-            .add_systems(Startup, add_hydrators)
+            .add_systems(Startup, (add_hydrators, setup_camera))
             .add_systems(
                 OnEnter(MapLoadState::Done),
                 (setup_scene, post_setup_scene).chain(),
@@ -24,7 +28,8 @@ impl Plugin for ScenePlugin {
                 (tear_down_scene, setup_scene, post_setup_scene)
                     .chain()
                     .run_if(in_state(MapLoadState::Done)),
-            );
+            )
+            .add_plugins((UIPlugin, PixelPerfectCameraPlugin));
     }
 }
 
@@ -53,10 +58,6 @@ pub enum SceneState {
 
 // Hydrators
 
-pub fn hydrate_camera(entity_commands: &mut EntityCommands, _: &ObjectData) {
-    entity_commands.insert(Camera2dBundle::default());
-}
-
 pub fn hydrate_no_tear_down(entity_commands: &mut EntityCommands, object_data: &ObjectData) {
     entity_commands.insert(NoTearDown {
         id: object_data.name.clone(),
@@ -69,7 +70,6 @@ pub fn hydrate_no_tear_down(entity_commands: &mut EntityCommands, object_data: &
 fn add_hydrators(mut hydrators: ResMut<ComponentHydrators>) {
     hydrators
         .register_tag::<(BackgroundLoop, Uninintialized)>("BackgroundLoop")
-        .register_hydrator("Camera2dBundle", hydrate_camera)
         .register_hydrator("NoTearDown", hydrate_no_tear_down);
 }
 
@@ -149,7 +149,7 @@ fn setup_scene(
         if is_tool {
             entity_commands.insert(Tool);
         } else {
-            entity_commands.insert((sprite_bundle, texture_atlas));
+            entity_commands.insert((sprite_bundle, texture_atlas, PIXEL_PERFECT_LAYERS));
         }
 
         let components_property = obj.properties.iter().find(|prop| prop.name == "Components");

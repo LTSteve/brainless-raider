@@ -1,13 +1,9 @@
-use bevy::{
-    ecs::system::EntityCommands, prelude::*, sprite::Anchor, window::PrimaryWindow,
-    winit::WinitSettings,
-};
-use bevy_utils::HashMap;
+use bevy::{ecs::system::EntityCommands, prelude::*, sprite::Anchor, window::PrimaryWindow};
 
 use crate::{
-    audio_server, get_property_value_from_object_or_default_f,
-    get_property_value_from_object_or_default_s, AudioServer, BackgroundLoop, ComponentHydrators,
-    MapLoadState, MapServer, NoTearDown, ObjectData, SceneState, Uninintialized, MAX_LIVES,
+    get_property_value_from_object_or_default_f, get_property_value_from_object_or_default_s,
+    AudioServer, BackgroundLoop, ComponentHydrators, MapLoadState, MapServer, ObjectData,
+    SceneState, Uninintialized,
 };
 
 // Constants

@@ -36,11 +36,6 @@
 </data>
  </layer>
  <objectgroup id="2" name="Objects">
-  <object id="22" template="../../templates/camera.tx" name="MainCamera" type="Camera" x="73" y="209" visible="1">
-   <properties>
-    <property name="_tool" type="bool" value="true"/>
-   </properties>
-  </object>
   <object id="23" template="../../templates/background_loop.tx" name="BackgroundLoop" type="BackgroundLoop" x="75.5" y="244.5"/>
   <object id="24" template="../../templates/label.tx" name="Lives Label" x="403" y="59">
    <properties>
