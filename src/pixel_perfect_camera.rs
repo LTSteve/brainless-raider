@@ -103,6 +103,10 @@ pub fn setup_camera(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     commands.spawn((
         SpriteBundle {
             texture: image_handle,
+            transform: Transform {
+                translation: Vec3::new(0.0, 0.0, -1.0),
+                ..default()
+            },
             ..default()
         },
         Canvas,
