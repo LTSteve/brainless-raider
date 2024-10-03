@@ -4,7 +4,7 @@
  <object type="Pit" gid="5" width="16" height="16">
   <properties>
    <property name="Components" value="Pit|Collider"/>
-   <property name="collider_radius" type="float" value="8"/>
+   <property name="collider_radius" type="float" value="7"/>
    <property name="z" type="float" value="1"/>
   </properties>
  </object>

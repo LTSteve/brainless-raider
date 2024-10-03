@@ -5,7 +5,7 @@
   <properties>
    <property name="Components" value="Mover|Collider|Goblinoid"/>
    <property name="clockwise" type="bool" value="false"/>
-   <property name="collider_radius" type="float" value="4"/>
+   <property name="collider_radius" type="float" value="7"/>
    <property name="dir_x" type="int" value="1"/>
    <property name="dir_y" type="int" value="0"/>
    <property name="z" type="float" value="7"/>

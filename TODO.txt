@@ -17,10 +17,12 @@ X Falling into pits animations
 X BUG: Game Over causes issues
 X Pixel Perfect
 X BUG~: Module Tree
-Spinning Treasure
-BUG: Adventurer clips under exit?
-UI Scales with window size
+X Spinning Treasure
+X BUG: Adventurer clips under exit?
+X UI Scales with window size
 Font
 BUG: Cursor hover in splash screen
 You Win screen
 BUG: Text glitches out when restarting from beginning
+BUG: Add a grace period for detecting plank stuff
+Make planks render above dead movers

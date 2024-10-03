@@ -8,10 +8,10 @@ impl Plugin for PitsAndPlanksPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, add_hydrators)
             .add_systems(
-                PostUpdate,
+                FixedPostUpdate,
                 (hide_inactive_planks, initialize_planks_triggers),
             )
-            .add_systems(PreUpdate, toggle_planks_triggers);
+            .add_systems(FixedPreUpdate, toggle_planks_triggers);
     }
 }
 
