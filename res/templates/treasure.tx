@@ -5,7 +5,7 @@
   <properties>
    <property name="Components" value="Treasure|Collider"/>
    <property name="collider_radius" type="float" value="5"/>
-   <property name="z" type="float" value="6"/>
+   <property name="z" type="float" value="9"/>
   </properties>
  </object>
 </template>
