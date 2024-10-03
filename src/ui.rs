@@ -1,9 +1,12 @@
-use bevy::{ecs::system::EntityCommands, prelude::*, sprite::Anchor, window::PrimaryWindow};
+use bevy::{
+    ecs::system::EntityCommands, prelude::*, render::view::RenderLayers, sprite::Anchor,
+    window::PrimaryWindow,
+};
 
 use crate::{
     get_property_value_from_object_or_default_f, get_property_value_from_object_or_default_s,
     AudioServer, BackgroundLoop, ComponentHydrators, MapLoadState, MapServer, ObjectData,
-    SceneState, Uninintialized,
+    SceneState, Uninintialized, HIGH_RES_LAYERS, PIXEL_PERFECT_LAYERS, RES_HEIGHT, RES_WIDTH,
 };
 
 // Constants
@@ -52,7 +55,7 @@ pub struct StartButton;
 
 pub fn hydrate_label(entity_commands: &mut EntityCommands, object_data: &ObjectData) {
     let text_style = TextStyle {
-        font_size: 60.0,
+        font_size: 30.0,
         color: Color::hex(TEXT_COLOR).expect("invalid hex color"),
         ..Default::default()
     };
@@ -95,18 +98,22 @@ pub fn hydrate_label(entity_commands: &mut EntityCommands, object_data: &ObjectD
             text: Text::from_sections(sections),
             text_anchor: anchor,
             visibility: Visibility::Hidden,
-            transform: Transform::default(), // will be set in initialize fns
+            transform: Transform {
+                scale: Vec3::new(0.25, 0.25, 0.25),
+                ..Default::default()
+            }, // will be set in initialize fns
             ..Default::default()
         },
         LabelProperties {
             offset: Vec2::new(x_offset as f32, y_offset as f32),
         },
+        HIGH_RES_LAYERS,
     ));
 }
 
 fn hydrate_start_button(entity_commands: &mut EntityCommands, object_data: &ObjectData) {
     let text_style = TextStyle {
-        font_size: 60.0,
+        font_size: 30.0,
         color: Color::hex(TEXT_COLOR).expect("invalid hex color"),
         ..Default::default()
     };
@@ -118,7 +125,7 @@ fn hydrate_start_button(entity_commands: &mut EntityCommands, object_data: &Obje
     let y_offset = get_property_value_from_object_or_default_f(object_data, "y_offset", 0.0);
 
     entity_commands
-        .insert(NodeBundle {
+        .insert((NodeBundle {
             style: Style {
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::Center,
@@ -127,7 +134,7 @@ fn hydrate_start_button(entity_commands: &mut EntityCommands, object_data: &Obje
                 ..Default::default()
             },
             ..Default::default()
-        })
+        },))
         .with_children(|parent| {
             parent
                 .spawn((
@@ -146,9 +153,10 @@ fn hydrate_start_button(entity_commands: &mut EntityCommands, object_data: &Obje
                         ..default()
                     },
                     StartButton,
+                    HIGH_RES_LAYERS,
                 ))
                 .with_children(|parent| {
-                    parent.spawn(TextBundle::from_section(text, text_style));
+                    parent.spawn((TextBundle::from_section(text, text_style), HIGH_RES_LAYERS));
                 });
         });
 }
@@ -182,14 +190,11 @@ fn initialize_background_loop(
 fn initialize_labels(
     mut commands: Commands,
     mut label_q: Query<(Entity, &mut Transform, &LabelProperties, &Anchor), With<Uninintialized>>,
-    window_query: Query<&Window, With<PrimaryWindow>>,
 ) {
     for (entity, mut transform, properties, anchor) in label_q.iter_mut() {
-        let window = window_query.get_single().expect("Couldn't find window");
-
         transform.translation = ui_location_from_anchor_offsets(
             *anchor,
-            Vec2::new(window.width(), window.height()),
+            Vec2::new(RES_WIDTH as f32, RES_HEIGHT as f32),
             properties.offset,
         );
 

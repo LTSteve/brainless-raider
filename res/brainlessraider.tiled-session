@@ -3,11 +3,11 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "maps/tutorial/2.tmx",
+    "activeFile": "maps/tutorial/title.tmx",
     "expandedProjectPaths": [
-        "maps/tutorial",
         ".",
         "templates",
+        "maps/tutorial",
         "maps"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
@@ -69,7 +69,7 @@
             "selectedLayer": 1,
             "viewCenter": {
                 "x": 233,
-                "y": 258.5
+                "y": 194.25
             }
         },
         "sprites.tsx": {
@@ -89,7 +89,8 @@
         "maps/tutorial/1.tmx",
         "maps/tutorial/2.tmx",
         "maps/tutorial/3.tmx",
-        "maps/tutorial/4.tmx"
+        "maps/tutorial/4.tmx",
+        "maps/tutorial/title.tmx"
     ],
     "project": "brainlessraider.tiled-project",
     "property.type": "string",
@@ -97,9 +98,10 @@
         "sprites.tsx",
         "maps/tutorial/0.tmx",
         "maps/tutorial/1.tmx",
-        "maps/tutorial/4.tmx",
+        "maps/tutorial/2.tmx",
         "maps/tutorial/3.tmx",
-        "maps/tutorial/2.tmx"
+        "maps/tutorial/4.tmx",
+        "maps/tutorial/title.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

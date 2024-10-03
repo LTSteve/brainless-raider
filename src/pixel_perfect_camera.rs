@@ -3,6 +3,9 @@ use bevy::render::camera::RenderTarget;
 use bevy::render::render_resource::{
     Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
 };
+use bevy::render::texture::{
+    ImageAddressMode, ImageFilterMode, ImageSampler, ImageSamplerDescriptor,
+};
 use bevy::render::view::RenderLayers;
 use bevy::window::WindowResized;
 
@@ -11,17 +14,17 @@ use crate::NoTearDown;
 // Constants
 
 /// In-game resolution width.
-pub const RES_WIDTH: u32 = 960;
+pub const RES_WIDTH: u32 = 320;
 
 /// In-game resolution height.
-pub const RES_HEIGHT: u32 = 540;
+pub const RES_HEIGHT: u32 = 180;
 
 /// Default render layers for pixel-perfect rendering.
 /// You can skip adding this component, as this is the default.
 pub const PIXEL_PERFECT_LAYERS: RenderLayers = RenderLayers::layer(0);
 
 /// Render layers for high-resolution rendering.
-const HIGH_RES_LAYERS: RenderLayers = RenderLayers::layer(1);
+pub const HIGH_RES_LAYERS: RenderLayers = RenderLayers::layer(1);
 
 // Plugin
 
@@ -77,7 +80,6 @@ pub fn setup_camera(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     canvas.resize(canvas_size);
 
     let image_handle = images.add(canvas);
-
     // this camera renders whatever is on `PIXEL_PERFECT_LAYERS` to the canvas
     commands.spawn((
         Camera2dBundle {
@@ -110,7 +112,6 @@ pub fn setup_camera(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
             ignore_duplicates: false,
         },
     ));
-
     // the "outer" camera renders whatever is on `HIGH_RES_LAYERS` to the screen.
     // here, the canvas and one of the sample sprites will be rendered by this camera
     commands.spawn((
@@ -133,6 +134,6 @@ fn fit_canvas(
         let h_scale = event.width / RES_WIDTH as f32;
         let v_scale = event.height / RES_HEIGHT as f32;
         let mut projection = projections.single_mut();
-        projection.scale = 1. / h_scale.min(v_scale).round();
+        projection.scale = 1. / h_scale.min(v_scale);
     }
 }

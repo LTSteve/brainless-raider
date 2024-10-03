@@ -1,11 +1,5 @@
 use bevy::ecs::system::EntityCommands;
 use bevy::prelude::*;
-use bevy::render::camera::RenderTarget;
-use bevy::render::render_resource::{
-    Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
-};
-use bevy::sprite::Anchor;
-use bevy::window::PrimaryWindow;
 
 use crate::*;
 
