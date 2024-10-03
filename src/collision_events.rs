@@ -10,19 +10,27 @@ use std::f32::consts::PI;
 pub struct CollisionEventsPlugin;
 impl Plugin for CollisionEventsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, add_hydrators).add_systems(
-            Update,
-            (
-                on_adventurer_goblinoid_collide,
-                on_mover_treasure_collide,
-                on_adventurer_exit_collide.run_if(in_state(MapLoadState::Done)),
-                on_mover_portal_collide,
-                on_mover_pit_collide,
-                on_mover_pit_uncollide,
-                on_mover_planks_collide,
-                on_mover_planks_uncollide,
-            ),
-        );
+        app.add_systems(Startup, add_hydrators)
+            .add_systems(
+                Update,
+                (
+                    on_adventurer_goblinoid_collide,
+                    on_mover_treasure_collide,
+                    on_adventurer_exit_collide.run_if(in_state(MapLoadState::Done)),
+                    on_mover_portal_collide,
+                ),
+            )
+            .add_systems(
+                FixedUpdate,
+                (
+                    on_mover_planks_collide,
+                    on_mover_planks_uncollide,
+                    on_mover_pit_collide,
+                    on_mover_pit_uncollide,
+                    movers_fall_into_pits,
+                )
+                    .chain(),
+            );
     }
 }
 

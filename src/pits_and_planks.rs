@@ -11,8 +11,7 @@ impl Plugin for PitsAndPlanksPlugin {
                 PostUpdate,
                 (hide_inactive_planks, initialize_planks_triggers),
             )
-            .add_systems(PreUpdate, toggle_planks_triggers)
-            .add_systems(Update, movers_fall_into_pits);
+            .add_systems(PreUpdate, toggle_planks_triggers);
     }
 }
 
@@ -160,7 +159,7 @@ fn toggle_planks_triggers(
     }
 }
 
-fn movers_fall_into_pits(
+pub fn movers_fall_into_pits(
     mover_q: Query<
         (
             Entity,
