@@ -44,11 +44,11 @@ struct Canvas;
 
 /// Camera that renders the pixel-perfect world to the [`Canvas`].
 #[derive(Component)]
-struct InGameCamera;
+pub struct InGameCamera;
 
 /// Camera that renders the [`Canvas`] (and other graphics on [`HIGH_RES_LAYERS`]) to the screen.
 #[derive(Component)]
-struct OuterCamera;
+pub struct OuterCamera;
 
 // Systems
 
@@ -112,6 +112,7 @@ pub fn setup_camera(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
             ignore_duplicates: false,
         },
     ));
+
     // the "outer" camera renders whatever is on `HIGH_RES_LAYERS` to the screen.
     // here, the canvas and one of the sample sprites will be rendered by this camera
     commands.spawn((
