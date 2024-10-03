@@ -22,8 +22,7 @@ impl Plugin for ScenePlugin {
                 (tear_down_scene, setup_scene, post_setup_scene)
                     .chain()
                     .run_if(in_state(MapLoadState::Done)),
-            )
-            .add_plugins((UIPlugin, PixelPerfectCameraPlugin));
+            );
     }
 }
 

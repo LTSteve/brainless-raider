@@ -39,37 +39,39 @@ use ui::*;
 fn main() {
     let mut app = App::new();
 
-    app.insert_resource(Msaa::Off).add_plugins((
-        DefaultPlugins
-            .set(AssetPlugin {
-                mode: AssetMode::Unprocessed,
-                file_path: "res".to_string(),
-                ..default()
-            })
-            .set(ImagePlugin::default_nearest()),
-        HydrateComponentsPlugin,
-        BRMapPlugin(vec![
-            String::from("maps/tutorial/title.tmx"),
-            String::from("maps/tutorial/2.tmx"),
-            String::from("maps/tutorial/3.tmx"),
-            String::from("maps/tutorial/0.tmx"),
-            String::from("maps/tutorial/1.tmx"),
-            String::from("maps/tutorial/4.tmx"),
-        ]),
-        CollisionPlugin {
-            debug_collisions: false,
-        },
-        CollisionEventsPlugin,
-        AudioServerPlugin,
-        TreasureTrainPlugin,
-        ScenePlugin,
-        MovementPlugin,
-        ClickableAreaPlugin { debug_clicks: true },
-        TeleporterPlugin,
-        PitsAndPlanksPlugin,
-        DeathPlugin,
-        PausePlugin,
-    ));
+    app.insert_resource(Msaa::Off)
+        .add_plugins((
+            DefaultPlugins
+                .set(AssetPlugin {
+                    mode: AssetMode::Unprocessed,
+                    file_path: "res".to_string(),
+                    ..default()
+                })
+                .set(ImagePlugin::default_nearest()),
+            HydrateComponentsPlugin,
+            BRMapPlugin(vec![
+                String::from("maps/tutorial/title.tmx"),
+                String::from("maps/tutorial/2.tmx"),
+                String::from("maps/tutorial/3.tmx"),
+                String::from("maps/tutorial/0.tmx"),
+                String::from("maps/tutorial/1.tmx"),
+                String::from("maps/tutorial/4.tmx"),
+            ]),
+            CollisionPlugin {
+                debug_collisions: false,
+            },
+            CollisionEventsPlugin,
+            AudioServerPlugin,
+            TreasureTrainPlugin,
+            ScenePlugin,
+            MovementPlugin,
+            ClickableAreaPlugin { debug_clicks: true },
+            TeleporterPlugin,
+            PitsAndPlanksPlugin,
+            DeathPlugin,
+            PausePlugin,
+        )) // Yo, you can only have so many plugins per call to add_plugins
+        .add_plugins((UIPlugin, PixelPerfectCameraPlugin));
 
     // This needs to happen after `DefaultPlugins` is added.
     load_internal_binary_asset!(
