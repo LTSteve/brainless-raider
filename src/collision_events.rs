@@ -1,10 +1,9 @@
-use std::f32::consts::PI;
-
 use crate::*;
 use bevy::{
     ecs::query::{QueryData, QueryFilter},
     prelude::*,
 };
+use std::f32::consts::PI;
 
 // Plugin
 
@@ -65,16 +64,19 @@ pub fn on_mover_treasure_collide(
     mut commands: Commands,
     mut ev_collision_enter: EventReader<CollisionEnterEvent>,
     mover_q: Query<(Entity, &Mover)>,
-    mut treasure_q: Query<(Entity, &mut Collider), With<Treasure>>,
+    mut treasure_q: Query<(Entity, &mut Collider, &mut Treasure)>,
     audio_server: Option<Res<AudioServer>>,
     mut treasure_train_q: Query<&mut TreasureTrain>,
 ) {
     for e in ev_collision_enter.read() {
         let (entity1, entity2) = align_entities(e.0, e.1, &mover_q);
-        if let (Ok((mover_entity, mover)), Ok((treasure_entity, mut treasure_collider))) =
-            (mover_q.get(entity1), treasure_q.get_mut(entity2))
+        if let (
+            Ok((mover_entity, mover)),
+            Ok((treasure_entity, mut treasure_collider, mut treasure)),
+        ) = (mover_q.get(entity1), treasure_q.get_mut(entity2))
         {
             treasure_collider.active = false;
+
             if let Some(audio_server) = &audio_server {
                 commands.spawn(audio_server.pick_up.create_one_shot());
             }

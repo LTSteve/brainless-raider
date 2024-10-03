@@ -8,6 +8,7 @@ bevy = { version = "^0.13.0" }
 bevy_utils = "^0.13.0"
 roxmltree = "0.20.0"
 serde = "1.0.204"
+rand = "0.8"
 
 # Enable a small amount of optimization in debug mode.
 [profile.dev]
