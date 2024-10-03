@@ -4,7 +4,7 @@ use std::{f32::consts::PI, fmt::Pointer};
 
 // Constants
 
-pub const DEATH_OFFSET: f32 = 2.0; // Under treasure
+pub const DEATH_OFFSET: f32 = 3.0; // Under treasure and planks
 pub const DEATH_SCALE: f32 = 0.8;
 pub const PIT_DEATH_SCALE: f32 = 0.5;
 pub const DEATH_COLOR: Color = Color::GRAY;

@@ -5,7 +5,7 @@
   <properties>
    <property name="Components" value="Planks|Collider"/>
    <property name="active" type="bool" value="false"/>
-   <property name="collider_radius" type="float" value="7"/>
+   <property name="collider_radius" type="float" value="4"/>
    <property name="z" type="float" value="3"/>
   </properties>
  </object>

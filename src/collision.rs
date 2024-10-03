@@ -72,7 +72,8 @@ pub fn update_colliders(
             || (both_active
                 && transform1
                     .translation
-                    .distance_squared(transform2.translation)
+                    .truncate()
+                    .distance_squared(transform2.translation.truncate())
                     > dist2)
         {
             let pos1 = collider1.colliding_with.iter().position(|e| e.eq(&entity2));
