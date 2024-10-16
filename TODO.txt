@@ -20,9 +20,10 @@ X BUG~: Module Tree
 X Spinning Treasure
 X BUG: Adventurer clips under exit?
 X UI Scales with window size
-Font
-BUG: Cursor hover in splash screen
+X Font
+X BUG: Text glitches out
+X Make planks render above dead movers
 You Win screen
-BUG: Text glitches out when restarting from beginning
-BUG: Add a grace period for detecting plank stuff
-Make planks render above dead movers
+
+Post Mortem
+Errata for some bugs (collisions using z index, plank z-index, etc)

@@ -3,7 +3,6 @@ use bevy::{
     ecs::query::{QueryData, QueryFilter},
     prelude::*,
 };
-use std::f32::consts::PI;
 
 // Plugin
 

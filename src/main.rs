@@ -16,6 +16,7 @@ mod tags;
 mod teleporter;
 mod treasure_train;
 mod ui;
+mod you_win;
 
 use audio_server::*;
 use bevy::{asset::load_internal_binary_asset, prelude::*};
@@ -35,6 +36,7 @@ use tags::*;
 use teleporter::*;
 use treasure_train::*;
 use ui::*;
+use you_win::*;
 
 fn main() {
     let mut app = App::new();
@@ -51,11 +53,12 @@ fn main() {
             HydrateComponentsPlugin,
             BRMapPlugin(vec![
                 String::from("maps/tutorial/title.tmx"),
-                String::from("maps/tutorial/2.tmx"),
-                String::from("maps/tutorial/3.tmx"),
                 String::from("maps/tutorial/0.tmx"),
                 String::from("maps/tutorial/1.tmx"),
+                String::from("maps/tutorial/2.tmx"),
+                String::from("maps/tutorial/3.tmx"),
                 String::from("maps/tutorial/4.tmx"),
+                String::from("maps/tutorial/youwin.tmx"),
             ]),
             CollisionPlugin {
                 debug_collisions: false,
@@ -71,7 +74,7 @@ fn main() {
             DeathPlugin,
             PausePlugin,
         )) // Yo, you can only have so many plugins per call to add_plugins
-        .add_plugins((UIPlugin, PixelPerfectCameraPlugin));
+        .add_plugins((UIPlugin, PixelPerfectCameraPlugin, YouWinPlugin));
 
     // This needs to happen after `DefaultPlugins` is added.
     load_internal_binary_asset!(
