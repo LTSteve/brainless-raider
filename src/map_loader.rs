@@ -22,6 +22,7 @@ impl Plugin for MapLoaderPlugin {
 // Map Data
 #[derive(Debug)]
 pub struct ObjectReference {
+    pub name: String,
     pub id: u16,
     pub template: Handle<TemplateData>,
     pub x: u16,
@@ -194,8 +195,14 @@ impl AssetLoader for MapLoader {
                     Some(val) => val,
                     None => "none",
                 };
+                //snag name
+                let obj_name = match object_elm.attribute("name") {
+                    Some(val) => val,
+                    None => "none",
+                };
 
                 objects.push(ObjectReference {
+                    name: String::from(obj_name),
                     id: str::parse::<u16>(object_elm.attribute("id").expect("can't find id"))
                         .expect("can't convert id into u16"),
                     template: load_context.load(local_path_to_project_path(

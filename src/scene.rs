@@ -1,7 +1,5 @@
 use bevy::ecs::system::EntityCommands;
 use bevy::prelude::*;
-use bevy::sprite::Anchor;
-use bevy::window::PrimaryWindow;
 
 use crate::*;
 
@@ -14,7 +12,7 @@ pub struct ScenePlugin;
 impl Plugin for ScenePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<SceneState>()
-            .add_systems(Startup, add_hydrators)
+            .add_systems(Startup, (add_hydrators, setup_camera))
             .add_systems(
                 OnEnter(MapLoadState::Done),
                 (setup_scene, post_setup_scene).chain(),
@@ -30,8 +28,11 @@ impl Plugin for ScenePlugin {
 
 // Components
 
-#[derive(Debug, Component, Default)]
-pub struct NoTearDown;
+#[derive(Debug, Component)]
+pub struct NoTearDown {
+    pub id: String,
+    pub ignore_duplicates: bool,
+}
 
 #[derive(Debug, Component)]
 struct Tool;
@@ -50,17 +51,19 @@ pub enum SceneState {
 
 // Hydrators
 
-pub fn hydrate_camera(entity_commands: &mut EntityCommands, _: &ObjectData) {
-    entity_commands.insert(Camera2dBundle::default());
+pub fn hydrate_no_tear_down(entity_commands: &mut EntityCommands, object_data: &ObjectData) {
+    entity_commands.insert(NoTearDown {
+        id: object_data.name.clone(),
+        ignore_duplicates: false,
+    });
 }
 
 // Systems
 
 fn add_hydrators(mut hydrators: ResMut<ComponentHydrators>) {
     hydrators
-        .register_tag::<NoTearDown>("NoTearDown")
         .register_tag::<(BackgroundLoop, Uninintialized)>("BackgroundLoop")
-        .register_hydrator("Camera2dBundle", hydrate_camera);
+        .register_hydrator("NoTearDown", hydrate_no_tear_down);
 }
 
 fn tear_down_scene(
@@ -139,7 +142,7 @@ fn setup_scene(
         if is_tool {
             entity_commands.insert(Tool);
         } else {
-            entity_commands.insert((sprite_bundle, texture_atlas));
+            entity_commands.insert((sprite_bundle, texture_atlas, PIXEL_PERFECT_LAYERS));
         }
 
         let components_property = obj.properties.iter().find(|prop| prop.name == "Components");
@@ -152,6 +155,20 @@ fn setup_scene(
     }
 }
 
-fn post_setup_scene(mut next_state: ResMut<NextState<SceneState>>) {
+fn post_setup_scene(
+    mut next_state: ResMut<NextState<SceneState>>,
+    mut commands: Commands,
+    no_tear_down_q: Query<(Entity, &NoTearDown)>,
+) {
+    let mut combinations = no_tear_down_q.iter_combinations::<2>();
+    while let Some([(entity1, no_tear_down1), (_, no_tear_down2)]) = combinations.fetch_next() {
+        if no_tear_down1.ignore_duplicates || no_tear_down2.ignore_duplicates {
+            continue;
+        }
+        if no_tear_down1.id.eq(&no_tear_down2.id) {
+            commands.entity(entity1).despawn();
+        }
+    }
+
     next_state.set(SceneState::Stable);
 }

@@ -1,5 +1,3 @@
-use std::f32::consts::PI;
-
 use crate::*;
 use bevy::{
     ecs::query::{QueryData, QueryFilter},
@@ -11,19 +9,27 @@ use bevy::{
 pub struct CollisionEventsPlugin;
 impl Plugin for CollisionEventsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, add_hydrators).add_systems(
-            Update,
-            (
-                on_adventurer_goblinoid_collide,
-                on_mover_treasure_collide,
-                on_adventurer_exit_collide.run_if(in_state(MapLoadState::Done)),
-                on_mover_portal_collide,
-                on_mover_pit_collide,
-                on_mover_pit_uncollide,
-                on_mover_planks_collide,
-                on_mover_planks_uncollide,
-            ),
-        );
+        app.add_systems(Startup, add_hydrators)
+            .add_systems(
+                Update,
+                (
+                    on_adventurer_goblinoid_collide,
+                    on_mover_treasure_collide,
+                    on_adventurer_exit_collide.run_if(in_state(MapLoadState::Done)),
+                    on_mover_portal_collide,
+                ),
+            )
+            .add_systems(
+                FixedUpdate,
+                (
+                    on_mover_planks_collide,
+                    on_mover_planks_uncollide,
+                    on_mover_pit_collide,
+                    on_mover_pit_uncollide,
+                    movers_fall_into_pits,
+                )
+                    .chain(),
+            );
     }
 }
 
@@ -52,6 +58,7 @@ pub fn on_adventurer_goblinoid_collide(
         {
             commands.entity(goblinoid_entity).insert(Dead {
                 killed_by: Some(adventurer_entity),
+                fell_into_pit: false,
             });
             if let Some(audio_server) = &audio_server {
                 commands.spawn(audio_server.kill.create_one_shot());
@@ -64,16 +71,19 @@ pub fn on_mover_treasure_collide(
     mut commands: Commands,
     mut ev_collision_enter: EventReader<CollisionEnterEvent>,
     mover_q: Query<(Entity, &Mover)>,
-    mut treasure_q: Query<(Entity, &mut Collider), With<Treasure>>,
+    mut treasure_q: Query<(Entity, &mut Collider, &mut Treasure)>,
     audio_server: Option<Res<AudioServer>>,
     mut treasure_train_q: Query<&mut TreasureTrain>,
 ) {
     for e in ev_collision_enter.read() {
         let (entity1, entity2) = align_entities(e.0, e.1, &mover_q);
-        if let (Ok((mover_entity, mover)), Ok((treasure_entity, mut treasure_collider))) =
-            (mover_q.get(entity1), treasure_q.get_mut(entity2))
+        if let (
+            Ok((mover_entity, mover)),
+            Ok((treasure_entity, mut treasure_collider, mut treasure)),
+        ) = (mover_q.get(entity1), treasure_q.get_mut(entity2))
         {
             treasure_collider.active = false;
+
             if let Some(audio_server) = &audio_server {
                 commands.spawn(audio_server.pick_up.create_one_shot());
             }
@@ -125,7 +135,10 @@ pub fn on_adventurer_exit_collide(
                 if let Some(audio_server) = &audio_server {
                     commands.spawn(audio_server.die.create_one_shot());
                 }
-                commands.entity(entity).insert(Dead { killed_by: None });
+                commands.entity(entity).insert(Dead {
+                    killed_by: None,
+                    fell_into_pit: false,
+                });
             }
         }
     }

@@ -53,6 +53,7 @@ pub struct MapData {
 
 #[derive(Debug)]
 pub struct ObjectData {
+    pub name: String,
     pub obj_type: String,
     pub id: u16,
     pub sprite_sheet: TextureAtlasData,
@@ -127,6 +128,7 @@ fn create_map_server(
             let template_sprite_sheet = spritesheet_assets.get(&template.sprite_sheet).unwrap();
 
             objects.push(ObjectData {
+                name: object_ref.name.clone(),
                 obj_type: object_ref.obj_type.clone(),
                 id: object_ref.id,
                 x: object_ref.x,

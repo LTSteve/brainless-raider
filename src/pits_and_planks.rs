@@ -8,11 +8,10 @@ impl Plugin for PitsAndPlanksPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, add_hydrators)
             .add_systems(
-                PostUpdate,
+                FixedPostUpdate,
                 (hide_inactive_planks, initialize_planks_triggers),
             )
-            .add_systems(PreUpdate, toggle_planks_triggers)
-            .add_systems(Update, movers_fall_into_pits);
+            .add_systems(FixedPreUpdate, toggle_planks_triggers);
     }
 }
 
@@ -160,7 +159,7 @@ fn toggle_planks_triggers(
     }
 }
 
-fn movers_fall_into_pits(
+pub fn movers_fall_into_pits(
     mover_q: Query<
         (
             Entity,
@@ -185,7 +184,10 @@ fn movers_fall_into_pits(
                     commands.spawn(audio_server.kill.create_one_shot());
                 }
             }
-            commands.entity(entity).insert(Dead { killed_by: None });
+            commands.entity(entity).insert(Dead {
+                killed_by: None,
+                fell_into_pit: true,
+            });
         }
     }
 }

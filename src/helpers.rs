@@ -1,7 +1,7 @@
 // Constants
 pub const FLOOR_Z: f32 = 0.0;
 pub const ENTITY_Z_OFFSET: f32 = 10.0;
-pub const SCALE: f32 = 4.0;
+pub const SCALE: f32 = 1.0;
 
 pub const TILE_WIDTH: f32 = 16.0;
 pub const HALF_TILE_WIDTH: f32 = 8.0;

@@ -3,11 +3,11 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "maps/tutorial/2.tmx",
+    "activeFile": "maps/tutorial/youwin.tmx",
     "expandedProjectPaths": [
+        ".",
         "maps",
         "maps/tutorial",
-        ".",
         "templates"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
@@ -20,7 +20,7 @@
             "selectedLayer": 1,
             "viewCenter": {
                 "x": 240,
-                "y": 240
+                "y": 239.90909090909093
             }
         },
         "maps/tutorial/1.tmx": {
@@ -31,7 +31,7 @@
             "selectedLayer": 1,
             "viewCenter": {
                 "x": 240,
-                "y": 240
+                "y": 239.90909090909093
             }
         },
         "maps/tutorial/2.tmx": {
@@ -41,8 +41,8 @@
             "scale": 4,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 214,
-                "y": 219.75
+                "x": 240,
+                "y": 239.875
             }
         },
         "maps/tutorial/3.tmx": {
@@ -53,7 +53,7 @@
             "selectedLayer": 1,
             "viewCenter": {
                 "x": 240,
-                "y": 240
+                "y": 239.90909090909093
             }
         },
         "maps/tutorial/4.tmx": {
@@ -61,7 +61,7 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 240,
-                "y": 240
+                "y": 240.33333333333337
             }
         },
         "maps/tutorial/title.tmx": {
@@ -69,7 +69,15 @@
             "selectedLayer": 1,
             "viewCenter": {
                 "x": 233,
-                "y": 258.5
+                "y": 194.25
+            }
+        },
+        "maps/tutorial/youwin.tmx": {
+            "scale": 1.7515625,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 240.35682426404998,
+                "y": 240.07136485280998
             }
         },
         "sprites.tsx": {
@@ -89,7 +97,9 @@
         "maps/tutorial/1.tmx",
         "maps/tutorial/2.tmx",
         "maps/tutorial/3.tmx",
-        "maps/tutorial/4.tmx"
+        "maps/tutorial/4.tmx",
+        "maps/tutorial/title.tmx",
+        "maps/tutorial/youwin.tmx"
     ],
     "project": "brainlessraider.tiled-project",
     "property.type": "string",
@@ -97,9 +107,11 @@
         "sprites.tsx",
         "maps/tutorial/0.tmx",
         "maps/tutorial/1.tmx",
-        "maps/tutorial/4.tmx",
+        "maps/tutorial/2.tmx",
         "maps/tutorial/3.tmx",
-        "maps/tutorial/2.tmx"
+        "maps/tutorial/4.tmx",
+        "maps/tutorial/title.tmx",
+        "maps/tutorial/youwin.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

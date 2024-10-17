@@ -7,7 +7,7 @@
    <property name="enter_portal" type="object" value="8"/>
    <property name="exit_portal_1" type="object" value="10"/>
    <property name="exit_portal_2" type="object" value="11"/>
-   <property name="radius" type="float" value="16"/>
+   <property name="radius" type="float" value="6"/>
    <property name="z" type="float" value="5"/>
   </properties>
  </object>

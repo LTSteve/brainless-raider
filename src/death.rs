@@ -1,11 +1,12 @@
 use crate::*;
 use bevy::{ecs::system::EntityCommands, prelude::*};
-use std::f32::consts::PI;
+use std::{f32::consts::PI, fmt::Pointer};
 
 // Constants
 
-pub const DEATH_OFFSET: f32 = 2.0; // Under treasure
+pub const DEATH_OFFSET: f32 = 3.0; // Under treasure and planks
 pub const DEATH_SCALE: f32 = 0.8;
+pub const PIT_DEATH_SCALE: f32 = 0.5;
 pub const DEATH_COLOR: Color = Color::GRAY;
 pub const DEATH_ROTATION: f32 = 90.0;
 
@@ -39,6 +40,7 @@ pub struct Lives(pub u16);
 #[derive(Debug, Component)]
 pub struct Dead {
     pub killed_by: Option<Entity>,
+    pub fell_into_pit: bool,
 }
 
 // Systems
@@ -55,6 +57,7 @@ fn movers_die(
     for (mover_entity, mut transform, mut sprite, mut collider, dead) in dead_mover_q.iter_mut() {
         let mut did_treasure_transfer = false;
 
+        // When killed by a mover
         if let Some(killed_by) = dead.killed_by {
             let mut killed_train_e: Option<Entity> = None;
             let mut killed_train: Option<Mut<'_, TreasureTrain>> = None;
@@ -103,8 +106,14 @@ fn movers_die(
 
         commands.entity(mover_entity).remove::<Mover>();
         collider.active = false;
+
+        // When killed by pit
+        if dead.fell_into_pit {
+            transform.scale = transform.scale * PIT_DEATH_SCALE;
+        } else {
+            transform.scale = transform.scale * DEATH_SCALE;
+        }
         transform.rotate_z(deg_to_rad(DEATH_ROTATION));
-        transform.scale = transform.scale * DEATH_SCALE;
         transform.translation.z -= DEATH_OFFSET;
         sprite.color = DEATH_COLOR;
     }

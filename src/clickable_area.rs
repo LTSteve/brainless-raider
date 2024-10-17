@@ -46,7 +46,7 @@ pub fn hydrate_clickable_area(entity_commands: &mut EntityCommands, object_data:
             coord_to_pos(object_data.x as f32),
             coord_to_pos(object_data.y as f32),
         ),
-        radius_squared: radius * radius * SCALE,
+        radius_squared: radius * radius,
         name: object_data.obj_type.clone(),
     });
 }
@@ -68,7 +68,7 @@ fn track_clickable_areas(
     mut ev_mouse_click: EventWriter<MouseClickEvent>,
     area_q: Query<(Entity, &ClickableArea)>,
     mut window_q: Query<&mut Window>,
-    camera_q: Query<(&Camera, &GlobalTransform)>,
+    camera_q: Query<(&Camera, &GlobalTransform), With<OuterCamera>>,
     buttons: Res<ButtonInput<MouseButton>>,
 ) {
     if let Ok(mut window) = window_q.get_single_mut() {

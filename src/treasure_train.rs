@@ -1,8 +1,15 @@
 use bevy::prelude::*;
+use rand::Rng;
 
 use crate::{
     coord_to_pos, Adventurer, Mover, SceneState, TreasuresLabel, SUCCESS_COLOR, TEXT_COLOR,
 };
+
+// Constants
+
+const TREASURE_SPEED: f32 = 2.0;
+const TREASURE_MIN_ROT: f32 = 0.5;
+const TREASURE_MAX_ROT: f32 = 2.0;
 
 // Plugin
 pub struct TreasureTrainPlugin;
@@ -30,10 +37,14 @@ pub struct TreasureCount {
 #[derive(Debug, Component)]
 pub struct Treasure {
     pub following: Option<Entity>,
+    pub rot_speed: f32,
 }
 impl Default for Treasure {
     fn default() -> Self {
-        Self { following: None }
+        Self {
+            following: None,
+            rot_speed: rand::thread_rng().gen_range(TREASURE_MIN_ROT..TREASURE_MAX_ROT),
+        }
     }
 }
 
@@ -49,8 +60,9 @@ pub struct TreasureTrain {
 
 fn update_treasure_trains(
     mut treasure_train_q: Query<&mut TreasureTrain>,
-    mut treasure_q: Query<&mut Transform, With<Treasure>>,
+    mut treasure_q: Query<(&mut Transform, &Treasure)>,
     mover_q: Query<&Mover>,
+    time: Res<Time>,
 ) {
     for mut treasure_train in treasure_train_q.iter_mut() {
         // fill target spots
@@ -73,17 +85,19 @@ fn update_treasure_trains(
             }
         }
 
-        // move treasures
+        // move & spin treasures
         let mut i = 0;
         for &treasure_entity in &treasure_train.treasures {
-            if let Ok(mut treasure_transform) = treasure_q.get_mut(treasure_entity) {
+            if let Ok((mut treasure_transform, treasure)) = treasure_q.get_mut(treasure_entity) {
                 let coord = treasure_train.target_spots[i];
                 let mvmt = Vec3::new(
                     coord_to_pos(coord.x as f32),
                     coord_to_pos(coord.y as f32),
                     treasure_transform.translation.z,
                 ) - treasure_transform.translation;
-                treasure_transform.translation = treasure_transform.translation + mvmt * 0.1;
+                treasure_transform.translation =
+                    treasure_transform.translation + mvmt * TREASURE_SPEED * time.delta_seconds();
+                treasure_transform.rotate_z(treasure.rot_speed * time.delta_seconds());
             }
             i += 1;
         }

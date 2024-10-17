@@ -13,10 +13,21 @@ X Label-as-component
 X Click to start
 
 Flavor
-Falling into pits animations
-Pixel Perfect
-Spinning Treasure
-BUG: Adventurer clips under exit?
-UI Scales with window size
-Font
-BUG: Cursor hover in splash screen
+X Falling into pits animations
+X BUG: Game Over causes issues
+X Pixel Perfect
+X BUG~: Module Tree
+X Spinning Treasure
+X BUG: Adventurer clips under exit?
+X UI Scales with window size
+X Font
+X BUG: Text glitches out
+X Make planks render above dead movers
+X You Win screen
+
+Post Mortem
+- what should have done differently
+- what I'll be changing in the errata
+- what I'll be changing for next Shtevlog
+- wontfix
+Errata for some bugs (collisions using z index, plank z-index, etc)

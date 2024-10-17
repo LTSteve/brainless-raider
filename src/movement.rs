@@ -17,7 +17,7 @@ pub struct MovementPlugin;
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, add_hydrators).add_systems(
-            Update,
+            FixedUpdate,
             move_movers
                 .run_if(in_state(MapLoadState::Done))
                 .run_if(in_state(PauseState::Running)),
