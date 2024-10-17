@@ -3,12 +3,12 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "maps/tutorial/title.tmx",
+    "activeFile": "maps/tutorial/youwin.tmx",
     "expandedProjectPaths": [
-        "templates",
-        "maps/tutorial",
+        ".",
         "maps",
-        "."
+        "maps/tutorial",
+        "templates"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -72,6 +72,14 @@
                 "y": 194.25
             }
         },
+        "maps/tutorial/youwin.tmx": {
+            "scale": 1.7515625,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 240.35682426404998,
+                "y": 240.07136485280998
+            }
+        },
         "sprites.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
@@ -90,7 +98,8 @@
         "maps/tutorial/2.tmx",
         "maps/tutorial/3.tmx",
         "maps/tutorial/4.tmx",
-        "maps/tutorial/title.tmx"
+        "maps/tutorial/title.tmx",
+        "maps/tutorial/youwin.tmx"
     ],
     "project": "brainlessraider.tiled-project",
     "property.type": "string",
@@ -101,7 +110,8 @@
         "maps/tutorial/2.tmx",
         "maps/tutorial/3.tmx",
         "maps/tutorial/4.tmx",
-        "maps/tutorial/title.tmx"
+        "maps/tutorial/title.tmx",
+        "maps/tutorial/youwin.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

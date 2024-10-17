@@ -23,7 +23,11 @@ X UI Scales with window size
 X Font
 X BUG: Text glitches out
 X Make planks render above dead movers
-You Win screen
+X You Win screen
 
 Post Mortem
+- what should have done differently
+- what I'll be changing in the errata
+- what I'll be changing for next Shtevlog
+- wontfix
 Errata for some bugs (collisions using z index, plank z-index, etc)
