@@ -131,8 +131,7 @@ pub fn on_adventurer_exit_collide(
         if let (Ok(entity), Ok(_)) = (adventurer_q.get(entity1), exit_q.get(entity2)) {
             if treasure_count.map_treasures == treasure_count.player_treasures {
                 commands.spawn(audio_server.exit.create_one_shot());
-                map_server.map_idx =
-                    std::cmp::max((map_server.map_idx + 1) % map_server.maps.len(), 1); // TODO: temp
+                map_server.next_map();
                 next_state.set(SceneState::Transitioning);
             } else {
                 commands.spawn(audio_server.die.create_one_shot());

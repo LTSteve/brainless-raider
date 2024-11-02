@@ -144,7 +144,7 @@ fn dead_adventurers_respawn() -> impl FnMut(
                     next_state.set(SceneState::Transitioning);
                 } else {
                     lives.0 = MAX_LIVES;
-                    map_server.map_idx = 0;
+                    map_server.go_to_first_map();
                     next_state.set(SceneState::Transitioning);
                 }
 

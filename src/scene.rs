@@ -83,7 +83,7 @@ fn setup_scene(
     map_server: Res<MapServer>,
     entity_hydrator: Res<ComponentHydrators>,
 ) {
-    let map = &map_server.maps[map_server.map_idx];
+    let map = map_server.get_current_map();
     let texture = &map.sprite_sheet.sprite;
 
     for idx in 0..map.data.len() {
