@@ -1,0 +1,37 @@
+[
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 1,
+        "members": [
+            {
+                "name": "clockwise",
+                "type": "bool",
+                "value": false
+            },
+            {
+                "name": "dir_x",
+                "type": "float",
+                "value": 0
+            },
+            {
+                "name": "dir_y",
+                "type": "float",
+                "value": 0
+            }
+        ],
+        "name": "Mover",
+        "type": "class",
+        "useAs": [
+            "property",
+            "map",
+            "layer",
+            "object",
+            "tile",
+            "tileset",
+            "wangcolor",
+            "wangset",
+            "project"
+        ]
+    }
+]
