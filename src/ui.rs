@@ -174,14 +174,10 @@ fn add_hydrators(mut hydrators: ResMut<ComponentHydrators>) {
 
 fn initialize_background_loop(
     mut commands: Commands,
-    audio_server: Option<Res<AudioServer>>,
+    audio_server: Res<AudioServer>,
     background_loop_q: Query<Entity, (With<BackgroundLoop>, With<Uninintialized>)>,
 ) {
     if let Ok(entity) = background_loop_q.get_single() {
-        if audio_server.is_none() {
-            return;
-        }
-        let audio_server = audio_server.unwrap();
         commands.spawn(audio_server.dumbraider.create_loop());
         commands.entity(entity).remove::<Uninintialized>();
     }
@@ -211,7 +207,7 @@ fn start_button_system(
         (&Interaction, &mut BackgroundColor),
         (Changed<Interaction>, With<StartButton>),
     >,
-    audio_server: Option<Res<AudioServer>>,
+    audio_server: Res<AudioServer>,
     mut next_state: ResMut<NextState<SceneState>>,
     mut map_server: ResMut<MapServer>,
     mut commands: Commands,
@@ -220,9 +216,7 @@ fn start_button_system(
         match *interaction {
             Interaction::Pressed => {
                 *color = PRESSED_BUTTON.into();
-                if let Some(audio_server) = &audio_server {
-                    commands.spawn(audio_server.click.create_one_shot());
-                }
+                commands.spawn(audio_server.click.create_one_shot());
                 map_server.map_idx = 1;
                 next_state.set(SceneState::Transitioning);
             }

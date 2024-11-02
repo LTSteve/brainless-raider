@@ -180,7 +180,7 @@ fn toggle_exit_portals(
     mut teleporter_q: Query<&mut Teleporter, With<ClickableArea>>,
     mut exit_q: Query<(Entity, &mut ExitPortal)>,
     mut enter_q: Query<&mut EnterPortal>,
-    audio_server: Option<Res<AudioServer>>,
+    audio_server: Res<AudioServer>,
     mut commands: Commands,
 ) {
     for e in ev_mouse_click.read() {
@@ -207,9 +207,7 @@ fn toggle_exit_portals(
                 }
             }
 
-            if let Some(audio_server) = &audio_server {
-                commands.spawn(audio_server.click.create_one_shot());
-            }
+            commands.spawn(audio_server.click.create_one_shot());
         }
     }
 }
