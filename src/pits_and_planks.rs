@@ -120,7 +120,7 @@ fn toggle_planks_triggers(
     mut ev_mouse_click: EventReader<MouseClickEvent>,
     mut planks_trigger_q: Query<&mut PlanksTrigger, With<ClickableArea>>,
     mut planks_q: Query<(&mut Planks, &mut Collider)>,
-    audio_server: Option<Res<AudioServer>>,
+    audio_server: Res<AudioServer>,
     mut commands: Commands,
 ) {
     for e in ev_mouse_click.read() {
@@ -151,9 +151,7 @@ fn toggle_planks_triggers(
                     collider.active = true;
                 }
 
-                if let Some(audio_server) = &audio_server {
-                    commands.spawn(audio_server.click.create_one_shot());
-                }
+                commands.spawn(audio_server.click.create_one_shot());
             }
         }
     }
@@ -169,7 +167,7 @@ pub fn movers_fall_into_pits(
         ),
         With<Mover>,
     >,
-    audio_server: Option<Res<AudioServer>>,
+    audio_server: Res<AudioServer>,
     mut commands: Commands,
 ) {
     for (entity, over_planks_counter, over_pit_counter, adventurer) in mover_q.iter() {
@@ -177,12 +175,10 @@ pub fn movers_fall_into_pits(
             continue;
         }
         if over_pit_counter.0 > 0 {
-            if let Some(audio_server) = &audio_server {
-                if let Some(_) = adventurer {
-                    commands.spawn(audio_server.die.create_one_shot());
-                } else {
-                    commands.spawn(audio_server.kill.create_one_shot());
-                }
+            if let Some(_) = adventurer {
+                commands.spawn(audio_server.die.create_one_shot());
+            } else {
+                commands.spawn(audio_server.kill.create_one_shot());
             }
             commands.entity(entity).insert(Dead {
                 killed_by: None,

@@ -33,6 +33,15 @@ impl Plugin for CollisionEventsPlugin {
     }
 }
 
+// Components
+
+#[derive(Default, Component)]
+pub struct Goblinoid;
+#[derive(Default, Component)]
+pub struct Adventurer;
+#[derive(Default, Component)]
+pub struct Exit;
+
 // Systems
 
 fn add_hydrators(mut hydrators: ResMut<ComponentHydrators>) {
@@ -48,7 +57,7 @@ pub fn on_adventurer_goblinoid_collide(
     mut ev_collision_enter: EventReader<CollisionEnterEvent>,
     adventurer_q: Query<Entity, With<Adventurer>>,
     mut goblinoid_q: Query<Entity, With<Goblinoid>>,
-    audio_server: Option<Res<AudioServer>>,
+    audio_server: Res<AudioServer>,
 ) {
     for e in ev_collision_enter.read() {
         let (entity1, entity2) = align_entities(e.0, e.1, &adventurer_q);
@@ -60,9 +69,7 @@ pub fn on_adventurer_goblinoid_collide(
                 killed_by: Some(adventurer_entity),
                 fell_into_pit: false,
             });
-            if let Some(audio_server) = &audio_server {
-                commands.spawn(audio_server.kill.create_one_shot());
-            }
+            commands.spawn(audio_server.kill.create_one_shot());
         }
     }
 }
@@ -72,7 +79,7 @@ pub fn on_mover_treasure_collide(
     mut ev_collision_enter: EventReader<CollisionEnterEvent>,
     mover_q: Query<(Entity, &Mover)>,
     mut treasure_q: Query<(Entity, &mut Collider, &mut Treasure)>,
-    audio_server: Option<Res<AudioServer>>,
+    audio_server: Res<AudioServer>,
     mut treasure_train_q: Query<&mut TreasureTrain>,
 ) {
     for e in ev_collision_enter.read() {
@@ -84,9 +91,7 @@ pub fn on_mover_treasure_collide(
         {
             treasure_collider.active = false;
 
-            if let Some(audio_server) = &audio_server {
-                commands.spawn(audio_server.pick_up.create_one_shot());
-            }
+            commands.spawn(audio_server.pick_up.create_one_shot());
 
             let mut found_treasure_train: Option<Mut<TreasureTrain>> = None;
 
@@ -116,7 +121,7 @@ pub fn on_adventurer_exit_collide(
     mut ev_collision_enter: EventReader<CollisionEnterEvent>,
     adventurer_q: Query<Entity, With<Adventurer>>,
     exit_q: Query<&Exit>,
-    audio_server: Option<Res<AudioServer>>,
+    audio_server: Res<AudioServer>,
     mut next_state: ResMut<NextState<SceneState>>,
     mut map_server: ResMut<MapServer>,
     treasure_count: ResMut<TreasureCount>,
@@ -125,16 +130,11 @@ pub fn on_adventurer_exit_collide(
         let (entity1, entity2) = align_entities(e.0, e.1, &adventurer_q);
         if let (Ok(entity), Ok(_)) = (adventurer_q.get(entity1), exit_q.get(entity2)) {
             if treasure_count.map_treasures == treasure_count.player_treasures {
-                if let Some(audio_server) = &audio_server {
-                    commands.spawn(audio_server.exit.create_one_shot());
-                }
-                map_server.map_idx =
-                    std::cmp::max((map_server.map_idx + 1) % map_server.maps.len(), 1); // TODO: temp
+                commands.spawn(audio_server.exit.create_one_shot());
+                map_server.next_map();
                 next_state.set(SceneState::Transitioning);
             } else {
-                if let Some(audio_server) = &audio_server {
-                    commands.spawn(audio_server.die.create_one_shot());
-                }
+                commands.spawn(audio_server.die.create_one_shot());
                 commands.entity(entity).insert(Dead {
                     killed_by: None,
                     fell_into_pit: false,
@@ -149,7 +149,7 @@ pub fn on_mover_portal_collide(
     mut mover_q: Query<(&mut Mover)>,
     portal_q: Query<&EnterPortal>,
     exit_portal_q: Query<(&Transform, &ExitPortal), Without<Mover>>,
-    audio_server: Option<Res<AudioServer>>,
+    audio_server: Res<AudioServer>,
     mut commands: Commands,
 ) {
     for e in ev_collision_enter.read() {
@@ -169,9 +169,7 @@ pub fn on_mover_portal_collide(
                     mover.dir = exit_portal.exit_dir;
                     mover.move_percent = -(1.0 - mover.move_percent); // :D
 
-                    if let Some(audio_server) = &audio_server {
-                        commands.spawn(audio_server.portal.create_one_shot());
-                    }
+                    commands.spawn(audio_server.portal.create_one_shot());
                 }
             }
         }

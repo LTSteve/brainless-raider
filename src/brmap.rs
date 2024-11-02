@@ -40,6 +40,18 @@ pub struct MapServer {
     pub maps: Vec<MapData>,
 }
 
+impl MapServer {
+    pub fn next_map(&mut self) {
+        self.map_idx = (self.map_idx + 1) % self.maps.len();
+    }
+    pub fn get_current_map(&self) -> &MapData {
+        return &self.maps[self.map_idx];
+    }
+    pub fn go_to_first_map(&mut self) {
+        self.map_idx = 0;
+    }
+}
+
 // Data
 #[derive(Debug)]
 pub struct MapData {
