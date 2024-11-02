@@ -40,6 +40,9 @@ struct Tool;
 #[derive(Debug, Component, Default)]
 pub struct BackgroundLoop;
 
+#[derive(Debug, Component, Default)]
+pub struct Uninintialized;
+
 // States
 
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]

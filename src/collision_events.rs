@@ -33,6 +33,15 @@ impl Plugin for CollisionEventsPlugin {
     }
 }
 
+// Components
+
+#[derive(Default, Component)]
+pub struct Goblinoid;
+#[derive(Default, Component)]
+pub struct Adventurer;
+#[derive(Default, Component)]
+pub struct Exit;
+
 // Systems
 
 fn add_hydrators(mut hydrators: ResMut<ComponentHydrators>) {

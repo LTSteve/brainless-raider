@@ -67,16 +67,13 @@ Post Mortem 1
 
 Errata for some bugs (collisions using z index, plank z-index, etc):
 ---
-- Single Responsibility for movers
-  - "mover reached the end of it's path" event
-  - "CWTurner", "CCWTurner" components
-- Remove Audio Server dependency on Command
+X Remove Audio Server dependency on Command -- Borrow checker makes this a bad plan (would need an audio player and audio server, at this point i don't care enough)
   - audio server list for "to-play" audio events
   - fn for adding events to those lists
   - audio server System for running queued audio events
-- Don't need "Option<Res<AudioServer>>"
+X Don't need "Option<Res<AudioServer>>"
   - not needed as AudioServer is built in Startup
-- remove 'tags' module, move to where they're used most
+X remove 'tags' module, move to where they're used most
 - Better Map State handling
   - next level()
   - get current level()
