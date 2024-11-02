@@ -19,7 +19,7 @@ mod ui;
 mod you_win;
 
 use audio_server::*;
-use bevy::{asset::load_internal_binary_asset, prelude::*};
+use bevy::{asset::{load_internal_binary_asset, AssetMetaCheck}, prelude::*};
 use brmap::*;
 use clickable_area::*;
 use collision::*;
@@ -42,6 +42,7 @@ fn main() {
     let mut app = App::new();
 
     app.insert_resource(Msaa::Off)
+        .insert_resource(AssetMetaCheck::Never)
         .add_plugins((
             DefaultPlugins
                 .set(AssetPlugin {
