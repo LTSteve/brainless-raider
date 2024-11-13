@@ -86,7 +86,7 @@ pub fn on_mover_treasure_collide(
         let (entity1, entity2) = align_entities(e.0, e.1, &mover_q);
         if let (
             Ok((mover_entity, mover)),
-            Ok((treasure_entity, mut treasure_collider, mut treasure)),
+            Ok((treasure_entity, mut treasure_collider, _)),
         ) = (mover_q.get(entity1), treasure_q.get_mut(entity2))
         {
             treasure_collider.active = false;
@@ -146,7 +146,7 @@ pub fn on_adventurer_exit_collide(
 
 pub fn on_mover_portal_collide(
     mut ev_collision_enter: EventReader<CollisionEnterEvent>,
-    mut mover_q: Query<(&mut Mover)>,
+    mut mover_q: Query<&mut Mover>,
     portal_q: Query<&EnterPortal>,
     exit_portal_q: Query<(&Transform, &ExitPortal), Without<Mover>>,
     audio_server: Res<AudioServer>,

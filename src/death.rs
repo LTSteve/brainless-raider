@@ -1,6 +1,6 @@
 use crate::*;
-use bevy::{ecs::system::EntityCommands, prelude::*};
-use std::{f32::consts::PI, fmt::Pointer};
+use bevy::prelude::*;
+use std::f32::consts::PI;
 
 // Constants
 

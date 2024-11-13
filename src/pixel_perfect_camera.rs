@@ -3,9 +3,6 @@ use bevy::render::camera::RenderTarget;
 use bevy::render::render_resource::{
     Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
 };
-use bevy::render::texture::{
-    ImageAddressMode, ImageFilterMode, ImageSampler, ImageSamplerDescriptor,
-};
 use bevy::render::view::RenderLayers;
 use bevy::window::WindowResized;
 

@@ -5,10 +5,10 @@
     },
     "activeFile": "maps/tutorial/3.tmx",
     "expandedProjectPaths": [
-        "templates",
-        "maps/tutorial",
+        ".",
         "maps",
-        "."
+        "maps/tutorial",
+        "templates"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -19,8 +19,8 @@
             "scale": 5.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 239.90909090909093,
-                "y": 239.90909090909093
+                "x": 246.36363636363637,
+                "y": 240.0909090909091
             }
         },
         "maps/tutorial/1.tmx": {
@@ -30,8 +30,8 @@
             "scale": 5.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 239.90909090909093,
-                "y": 239.90909090909093
+                "x": 240,
+                "y": 240.0909090909091
             }
         },
         "maps/tutorial/2.tmx": {
@@ -41,8 +41,8 @@
             "scale": 4,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 239.875,
-                "y": 239.875
+                "x": 240,
+                "y": 240.125
             }
         },
         "maps/tutorial/3.tmx": {
@@ -52,32 +52,32 @@
             "scale": 5.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 239.90909090909093,
-                "y": 239.90909090909093
+                "x": 240,
+                "y": 239.9090909090909
             }
         },
         "maps/tutorial/4.tmx": {
             "scale": 1.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 240.3333333333333,
-                "y": 240.33333333333337
+                "x": 240,
+                "y": 240.33333333333331
             }
         },
         "maps/tutorial/title.tmx": {
             "scale": 2,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 240.25,
-                "y": 239.75
+                "x": 240,
+                "y": 240.25
             }
         },
         "maps/tutorial/youwin.tmx": {
             "scale": 1.7515625,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 240.07136485281,
-                "y": 240.07136485280998
+                "x": 239.78590544157004,
+                "y": 240.07136485281
             }
         },
         "sprites.tsx": {

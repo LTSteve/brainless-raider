@@ -1,12 +1,11 @@
 use bevy::{
-    ecs::system::EntityCommands, prelude::*, render::view::RenderLayers, sprite::Anchor,
-    window::PrimaryWindow,
+    ecs::system::EntityCommands, prelude::*, sprite::Anchor,
 };
 
 use crate::{
     get_property_value_from_object_or_default_f, get_property_value_from_object_or_default_s,
     AudioServer, BackgroundLoop, ComponentHydrators, MapLoadState, MapServer, ObjectData,
-    SceneState, Uninintialized, HIGH_RES_LAYERS, PIXEL_PERFECT_LAYERS, RES_HEIGHT, RES_WIDTH,
+    SceneState, Uninintialized, HIGH_RES_LAYERS, RES_HEIGHT, RES_WIDTH,
 };
 
 // Constants

@@ -36,13 +36,11 @@ pub struct TreasureCount {
 
 #[derive(Debug, Component)]
 pub struct Treasure {
-    pub following: Option<Entity>,
     pub rot_speed: f32,
 }
 impl Default for Treasure {
     fn default() -> Self {
         Self {
-            following: None,
             rot_speed: rand::thread_rng().gen_range(TREASURE_MIN_ROT..TREASURE_MAX_ROT),
         }
     }
